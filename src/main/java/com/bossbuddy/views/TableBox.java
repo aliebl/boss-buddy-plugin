@@ -10,6 +10,7 @@ import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -31,6 +32,7 @@ public class TableBox extends JPanel {
     private final JButton collapseBtn = new JButton();
     private final JPanel listViewContainer = new JPanel();
     private JPanel gridViewPanel = new JPanel();
+
     private final JPanel headerContainer = new JPanel();
     private final JPanel leftHeader = new JPanel();
 
@@ -49,8 +51,11 @@ public class TableBox extends JPanel {
         this.headerStr = headerStr;
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        //setLayout(new BorderLayout(0, 1));
+        //setBorder(new EmptyBorder(5, 0, 0, 0));
 
         buildHeader();
+
         buildItemsContainer();
     }
 
@@ -63,47 +68,69 @@ public class TableBox extends JPanel {
         buildHeaderContainer();
     }
 
+
     void buildLeftHeader() {
         if (headerStr.length() > maxHeaderLength) {
             headerStr = headerStr.substring(0, maxHeaderLength) + "…"; // Manually truncate the header
         }
 
-        JLabel headerLabel = new JLabel(headerStr + " - " + bossDropRecord.GEPriceTotalFormatted());
+        JLabel headerLabel = new JLabel(headerStr);
         headerLabel.setFont(FontManager.getRunescapeBoldFont());
         headerLabel.setForeground(ColorScheme.BRAND_ORANGE);
-        headerLabel.setHorizontalAlignment(JLabel.CENTER);
+        headerLabel.setMinimumSize(new Dimension(1, headerLabel.getPreferredSize().height));
+        //headerLabel.setHorizontalAlignment(JLabel.CENTER);
+
+        JLabel headerKillLabel = new JLabel("x " + bossDropRecord.getKills());
+        headerKillLabel.setFont(FontManager.getRunescapeSmallFont());
+        headerKillLabel.setForeground(ColorScheme.LIGHT_GRAY_COLOR);
+        //headerKillLabel.setHorizontalAlignment(JLabel.CENTER);
+
+        JLabel headerPriceLabel = new JLabel(bossDropRecord.GEPriceTotalFormatted() );
+        headerPriceLabel.setFont(FontManager.getRunescapeSmallFont());
+        headerPriceLabel.setForeground(ColorScheme.LIGHT_GRAY_COLOR);
+        //headerTotalLabel.setHorizontalAlignment(JLabel.CENTER);
 
         leftHeader.setLayout(new BoxLayout(leftHeader, BoxLayout.X_AXIS));
         leftHeader.setBackground(HEADER_BG_COLOR);
+        leftHeader.setBorder(new EmptyBorder(7, 7, 7, 7));
+
         leftHeader.add(Box.createRigidArea(new Dimension(10, 0)));
         leftHeader.add(headerLabel);
+
+        leftHeader.add(Box.createRigidArea(new Dimension(5, 0)));
+        leftHeader.add(headerKillLabel);
+        leftHeader.add(Box.createHorizontalGlue());
+        leftHeader.add(Box.createRigidArea(new Dimension(5, 0)));
+
+        leftHeader.add(headerPriceLabel);
 
     }
 
     void buildHeaderContainer() {
         headerContainer.setLayout(new BorderLayout());
         headerContainer.setBackground(HEADER_BG_COLOR);
-        headerContainer.setPreferredSize(new Dimension(0, 40));
+        headerContainer.setPreferredSize(new Dimension(0, 30));
 
-        Util.showHandCursorOnHover(headerContainer);
+
+        //Util.showHandCursorOnHover(headerContainer);
         headerContainer.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent evt) {
-                toggleCollapse();
+                //toggleCollapse();
             }
 
             @Override
             public void mouseEntered(MouseEvent evt) {
-                headerContainer.setBackground(HOVER_COLOR);
-                leftHeader.setBackground(HOVER_COLOR);
-                collapseBtn.setBackground(HOVER_COLOR);
+                //headerContainer.setBackground(HOVER_COLOR);
+                //leftHeader.setBackground(HOVER_COLOR);
+                //collapseBtn.setBackground(HOVER_COLOR);
             }
 
             @Override
             public void mouseExited(MouseEvent evt) {
-                headerContainer.setBackground(HEADER_BG_COLOR);
-                leftHeader.setBackground(HEADER_BG_COLOR);
-                collapseBtn.setBackground(HEADER_BG_COLOR);
+                //headerContainer.setBackground(HEADER_BG_COLOR);
+                //leftHeader.setBackground(HEADER_BG_COLOR);
+                //collapseBtn.setBackground(HEADER_BG_COLOR);
             }
         });
         if (headerStr.endsWith("…")) {
@@ -111,7 +138,7 @@ public class TableBox extends JPanel {
             headerContainer.setToolTipText(fullHeaderStr + " - " + bossDropRecord.GEPriceTotalFormatted());
         }
 
-        headerContainer.add(leftHeader, BorderLayout.WEST);
+        headerContainer.add(leftHeader, BorderLayout.NORTH);
         add(headerContainer);
 
     }

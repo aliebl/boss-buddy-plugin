@@ -13,6 +13,7 @@ import static com.bossbuddy.util.Constants.*;
 public interface BossBuddyConfig extends Config
 {
 	String GROUP = "bossbuddy";
+	String LOOT_TRACKER_GROUP = "loottracker";
 
 
 

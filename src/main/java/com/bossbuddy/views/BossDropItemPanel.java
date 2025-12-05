@@ -175,7 +175,9 @@ public class BossDropItemPanel extends JPanel {
         deleteBtn = new JButton();
         SwingUtil.removeButtonDecorations(deleteBtn);
         deleteBtn.setText("x");
+        //deleteBtn.setForeground(ColorScheme.DARKER_GRAY_COLOR);
         deleteBtn.setBackground(ColorScheme.DARKER_GRAY_COLOR);
+        //deleteBtn.setBackground(ColorScheme.LIGHT_GRAY_COLOR);
         deleteBtn.setUI(new BasicButtonUI());
         deleteBtn.setToolTipText("Remove Record");
         deleteBtn.setPreferredSize(new Dimension(30,10));

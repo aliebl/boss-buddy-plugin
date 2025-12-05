@@ -705,7 +705,7 @@ public class BossBuddyPlugin extends Plugin
 
 					String chatMessageString = String.format("Item: %s - Rarity: %s",item.getName(), itemRarity);
 					if(config.displayDate()){
-						chatMessageString +=  String.format("%s - Date: %s",chatMessageString, formattedDate);
+						chatMessageString =  String.format("%s - Date: %s",chatMessageString, formattedDate);
 					}
 
 					String chatMessage = new ChatMessageBuilder()
@@ -742,26 +742,40 @@ public class BossBuddyPlugin extends Plugin
 		}
 
 		int killCount = getKc(name);
-		addLoot( npc, combat, items, killCount);
+		addLoot( npc, items, killCount);
 	}
 
 	private int getKc(String npcName)
 	{
 		Integer killCount = configManager.getRSProfileConfiguration("killcount", npcName.toLowerCase(), int.class);
 		if(killCount == null){
-			String json  = configManager.getConfiguration(BossBuddyConfig.GROUP, profileKey, "BOSS_BUDDY_NPC_" + npcName.toUpperCase());
-			if(json == null)
-				json = configManager.getConfiguration("loottracker", profileKey, "drops_NPC" + npcName);
+			String bossBuddyJson  = configManager.getConfiguration(BossBuddyConfig.GROUP, profileKey, "BOSS_BUDDY_NPC_" + npcName.toUpperCase());
+			String lootTrackerJson = configManager.getConfiguration(BossBuddyConfig.LOOT_TRACKER_GROUP, profileKey, "drops_NPC_" + npcName);
 
-			if (json != null){
-				ConfigLoot savedConfig = gson.fromJson(json, ConfigLoot.class);
+			if(bossBuddyJson == null && lootTrackerJson != null) {
+				ConfigLoot savedConfig = gson.fromJson(lootTrackerJson, ConfigLoot.class);
+				killCount = savedConfig.kills;
+			} else if (bossBuddyJson != null && lootTrackerJson != null) {
+				ConfigLoot bbConfig = gson.fromJson(bossBuddyJson, ConfigLoot.class);
+				ConfigLoot ltConfig = gson.fromJson(lootTrackerJson, ConfigLoot.class);
+
+				if (ltConfig.kills > bbConfig.kills){
+					bbConfig.kills = ltConfig.kills;
+                }
+                killCount = bbConfig.kills;
+
+            } else if(bossBuddyJson != null){
+				ConfigLoot savedConfig = gson.fromJson(bossBuddyJson, ConfigLoot.class);
 				killCount = savedConfig.kills;
 			}
+			else{
+				killCount = 0;
+			}
 		}
-		return killCount == null ? 0 : killCount;
+		return killCount + 1;
 	}
 
-	void addLoot(NPCComposition npc, int combatLevel, Collection<ItemStack> items, int killCount)
+	void addLoot(NPCComposition npc, Collection<ItemStack> items, int killCount)
 	{
 		int intdate = Integer.parseInt(formatter.format(Instant.now()));
 		final BossDropItem[] entries = buildEntries(stack(items), killCount, intdate);
@@ -769,26 +783,24 @@ public class BossBuddyPlugin extends Plugin
 			if (Objects.equals(bdi.getName(), "Dwarf remains") || Arrays.stream(config.ignoreItems().split(",")).anyMatch(k-> k.equals(bdi.getName())))
 				continue;
 
-			//need to update process to keep track of non boss kc
-
 			checkRates(bdi, npc);
 			ConfigLoot lootConfig = getLootConfig(npc.getName());
 			if (lootConfig == null)
 			{
 				lootConfig = new ConfigLoot(npc.getName());
-				lootConfig.kills = 0;
 			}
+
+			lootConfig.kills = killCount;
 
 			if(bdi.getGePrice() * bdi.getQuantity() >= config.trackBossDropValue() || !bdi.isTradeable()){
 				lootConfig.lastDropKC = bdi.getKillCount();
 				lootConfig.lastDrop = bdi.getName();
-				lootConfig.kills += lootConfig.lastDropKC - lootConfig.kills;
 				lootConfig.add(bdi.getId(), bdi.getKillCount(),  bdi.getGePrice() * bdi.getQuantity(), bdi.getDate());
 				lootConfig.last = Instant.now();
-				setLootConfig(lootConfig.name, lootConfig);
-				buildPanelItems(lootConfig);
 			}
 
+			setLootConfig(lootConfig.name, lootConfig);
+			buildPanelItems(lootConfig);
 		}
 	}
 
