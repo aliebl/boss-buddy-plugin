@@ -8,14 +8,14 @@ import java.util.Objects;
 
 public class WikiItem {
 
-    private String imageUrl;
-    private String name;
-    private int quantity;
-    private String quantityStr;
-    private String rarityStr;
-    private double rarity;
-    private int exchangePrice;
-    private int alchemyPrice;
+    private final String imageUrl;
+    private final String name;
+    private final int quantity;
+    private final String quantityStr;
+    private final String rarityStr;
+    private final double rarity;
+    private final int exchangePrice;
+    private final int alchemyPrice;
 
     NumberFormat nf = NumberFormat.getNumberInstance();
 
@@ -57,7 +57,7 @@ public class WikiItem {
             return numDem[0] + "/" + numDem[1];
         }
         return rarityStr;
-    };
+    }
 
     public int getExchangePrice() {
         return exchangePrice;

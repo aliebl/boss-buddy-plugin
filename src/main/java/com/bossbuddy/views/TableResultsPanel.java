@@ -3,23 +3,18 @@ package com.bossbuddy.views;
 import com.bossbuddy.BossBuddyConfig;
 import com.bossbuddy.loot.BossDropItem;
 import com.bossbuddy.loot.BossDropRecord;
-import net.runelite.client.ui.components.materialtabs.MaterialTab;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
-import com.bossbuddy.util.Util;
 import net.runelite.client.ui.ColorScheme;
-import net.runelite.client.util.SwingUtil;
 import javax.swing.border.MatteBorder;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.List;
 
 public class TableResultsPanel extends JPanel {
-    private BossBuddyConfig config;
-    private BossDropItem[] bossDropItems;
-    private BossDropRecord bossDropRecord;
-    private BossBuddyPanel bossBuddyPanel;
+    private final BossBuddyConfig config;
+    private final BossDropItem[] bossDropItems;
+    private final BossDropRecord bossDropRecord;
+    private final BossBuddyPanel bossBuddyPanel;
 
     private final List<TableBox> boxes = new ArrayList<>();
     private int selectedTabIndex;

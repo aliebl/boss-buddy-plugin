@@ -4,7 +4,6 @@ import com.bossbuddy.util.Util;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.http.api.loottracker.LootRecordType;
 
 @Slf4j
 @Value

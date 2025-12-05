@@ -4,7 +4,6 @@ import com.bossbuddy.util.Util;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import net.runelite.client.util.AsyncBufferedImage;
 
 @AllArgsConstructor

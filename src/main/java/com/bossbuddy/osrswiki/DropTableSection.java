@@ -1,7 +1,12 @@
 package com.bossbuddy.osrswiki;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.Map;
 
+@Setter
+@Getter
 public class DropTableSection {
     private String header;
     private Map<String, WikiItem[]> table;
@@ -14,19 +19,4 @@ public class DropTableSection {
         this.table = table;
     }
 
-    public void setHeader(String newHeader) {
-        this.header = newHeader;
-    }
-
-    public void setTable(Map<String, WikiItem[]> newTable) {
-        this.table = newTable;
-    }
-
-    public String getHeader() {
-        return header;
-    }
-
-    public Map<String, WikiItem[]> getTable() {
-        return table;
-    }
 }

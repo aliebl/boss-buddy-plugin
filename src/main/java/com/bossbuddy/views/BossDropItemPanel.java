@@ -29,13 +29,11 @@ public class BossDropItemPanel extends JPanel {
     @Inject
     private ConfigManager configManager;
 
-    private BossBuddyConfig config;
-    private TableBox tableBox;
-    private int itemIndex;
-    private BossDropItem item;
-    private AsyncBufferedImage image;
+    private final TableBox tableBox;
+    private final int itemIndex;
+    private final BossDropItem item;
+    private final AsyncBufferedImage image;
     private String itemName;
-    private JButton deleteBtn;
     private final Color bgColor = ColorScheme.DARKER_GRAY_COLOR;
     private final Color hoverColor = bgColor.brighter();
     private final JLabel rarityLabel = new JLabel();
@@ -46,7 +44,6 @@ public class BossDropItemPanel extends JPanel {
 
     public BossDropItemPanel(TableBox tableBox, BossDropItem item, BossBuddyConfig config, int index, boolean showSeparator) {
         this.item = item;
-        this.config = config;
         this.tableBox = tableBox;
         this.image = item.getImage();
         this.itemName = item.getName();
@@ -172,7 +169,7 @@ public class BossDropItemPanel extends JPanel {
     private JPanel buildRightPanel() {
         JPanel rightSidePanel = new JPanel(new GridLayout(2, 1));
 
-        deleteBtn = new JButton();
+        JButton deleteBtn = new JButton();
         SwingUtil.removeButtonDecorations(deleteBtn);
         deleteBtn.setText("x");
         //deleteBtn.setForeground(ColorScheme.DARKER_GRAY_COLOR);
@@ -214,7 +211,7 @@ public class BossDropItemPanel extends JPanel {
         if(kc == 0)
             rarityLabel.setText(formattedDate);
         else
-            rarityLabel.setText(String.valueOf(item.getKillCount()) + " | " + formattedDate);
+            rarityLabel.setText(item.getKillCount() + " | " + formattedDate);
     }
 
     void setPriceLabelText() {

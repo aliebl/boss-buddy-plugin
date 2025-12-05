@@ -30,7 +30,7 @@ public class HPOverlay extends Overlay {
 
     private final BossBuddyPlugin bossBuddyPlugin;
     private final BossBuddyConfig bossBuddyConfig;
-    private NPCManager npcManager;
+    private final NPCManager npcManager;
 
     protected String lastFont = "";
     protected int lastFontSize = 0;

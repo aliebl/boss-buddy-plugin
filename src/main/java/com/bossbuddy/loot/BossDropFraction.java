@@ -1,8 +1,8 @@
 package com.bossbuddy.loot;
 
 public class BossDropFraction implements Comparable<BossDropFraction> {
-    private int numerator;
-    private int denominator;
+    private final int numerator;
+    private final int denominator;
 
     public BossDropFraction(int numerator, int denominator) {
         if (denominator == 0) {

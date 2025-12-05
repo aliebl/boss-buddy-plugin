@@ -69,7 +69,7 @@ public class WikiScraper {
                 if (tableHeaderText.equals("Mechanics")) continue;
                 if (tableHeaderText.equals("Contribution")) continue;
                 if (tableHeaderText.equals("Contract")) continue;
-                ;
+
                 // ---
 
                 String tableHeaderTextLower = tableHeaderText.toLowerCase();
@@ -167,14 +167,14 @@ public class WikiScraper {
                     String cellContent = dropTableCell.text();
                     Elements images = dropTableCell.select("img");
 
-                    if (images.size() != 0) {
+                    if (!images.isEmpty()) {
                         String imageSource = images.first().attr("src");
                         if (!imageSource.isEmpty()) {
                             lootRow[0] = baseUrl + imageSource;
                         }
                     }
 
-                    if (cellContent != null && !cellContent.isEmpty() && index < 6) {
+                    if (!cellContent.isEmpty() && index < 6) {
                         cellContent = filterTableContent(cellContent);
                         lootRow[index] = cellContent;
                         index++;
@@ -281,7 +281,7 @@ public class WikiScraper {
             sanitizedName = "Grotesque_Guardians";
         }
         // ---
-        return baseWikiLookupUrl + "?type=npc&id=" + String.valueOf(id) + "&name=" + sanitizedName;
+        return baseWikiLookupUrl + "?type=npc&id=" + id + "&name=" + sanitizedName;
     }
 
     public static String getWikiUrlForDrops(String monsterName, String anchorText, int monsterId) {

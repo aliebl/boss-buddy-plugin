@@ -1,10 +1,6 @@
 package com.bossbuddy.respawn;
 
-import com.bossbuddy.BossBuddyConfig;
-import com.google.inject.Inject;
-import net.runelite.api.SoundEffectID;
 import net.runelite.client.Notifier;
-import net.runelite.client.audio.AudioPlayer;
 
 import java.util.concurrent.Callable;
 

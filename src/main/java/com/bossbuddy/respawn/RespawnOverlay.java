@@ -1,11 +1,9 @@
 package com.bossbuddy.respawn;
 
-import com.bossbuddy.Boss;
 import com.bossbuddy.BossBuddyConfig;
 import com.bossbuddy.BossBuddyNPC;
 import com.bossbuddy.BossBuddyPlugin;
 import com.google.common.base.Strings;
-import com.google.common.collect.Multimap;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -15,7 +13,6 @@ import java.awt.Stroke;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 

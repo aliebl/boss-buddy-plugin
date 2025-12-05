@@ -2,7 +2,6 @@ package com.bossbuddy.util;
 
 import net.runelite.client.util.ImageUtil;
 
-import javax.swing.*;
 import java.awt.image.BufferedImage;
 
 public class Icons {

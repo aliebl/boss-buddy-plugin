@@ -1,14 +1,10 @@
 package com.bossbuddy;
 
-import com.bossbuddy.views.PriceType;
-import com.bossbuddy.views.ViewOption;
 import net.runelite.client.config.*;
-import com.bossbuddy.util.Constants;
-
 import java.awt.*;
-
 import static com.bossbuddy.util.Constants.*;
 
+@SuppressWarnings("SameReturnValue")
 @ConfigGroup("Boss Buddy")
 public interface BossBuddyConfig extends Config
 {
@@ -194,7 +190,6 @@ public interface BossBuddyConfig extends Config
 	}
 
 	@Range(
-			min = 0,
 			max = 200
 	)
 	@ConfigItem(
@@ -208,7 +203,6 @@ public interface BossBuddyConfig extends Config
 		return 0;
 	}
 	@Range(
-			min = 0,
 			max = 200
 	)
 	@ConfigItem(
@@ -223,7 +217,6 @@ public interface BossBuddyConfig extends Config
 	}
 
 	@Range(
-			min = 0,
 			max = 200
 	)
 	@ConfigItem(
@@ -238,7 +231,6 @@ public interface BossBuddyConfig extends Config
 	}
 
 	@Range(
-			min = 0,
 			max = 200
 	)
 	@ConfigItem(
@@ -264,7 +256,6 @@ public interface BossBuddyConfig extends Config
 	}
 
 	@Range(
-			min = 0,
 			max = 2
 	)
 	@ConfigItem(

@@ -15,10 +15,8 @@ import com.bossbuddy.util.Constants;
 import com.bossbuddy.views.BossBuddyPanel;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
-import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Table;
 import com.google.gson.Gson;
 import com.google.inject.Provides;
 import javax.inject.Inject;
@@ -56,10 +54,7 @@ import java.util.*;
 import java.util.Timer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
@@ -69,9 +64,9 @@ import static net.runelite.api.gameval.NpcID.*;
 import static net.runelite.api.gameval.VarbitID.*;
 import net.runelite.client.util.Text;
 import net.runelite.client.util.WildcardMatcher;
-import net.runelite.http.api.loottracker.GameItem;
 import okhttp3.OkHttpClient;
 
+@SuppressWarnings("SameReturnValue")
 @Slf4j
 @PluginDescriptor(
 	name = "Boss Buddy"
@@ -156,8 +151,7 @@ public class BossBuddyPlugin extends Plugin
 	);
 
 	private String profileKey;
-	private Map<Integer, DropTableSection[]> loadedDropTableSections = new HashMap<>();
-	private DropTableSection[] currentDropTable;
+	private final Map<Integer, DropTableSection[]> loadedDropTableSections = new HashMap<>();
 
 	@Getter(AccessLevel.PUBLIC)
     public final Map<Integer, BossBuddyNPC> bossBuddyNPCs = new HashMap<>();
@@ -169,14 +163,11 @@ public class BossBuddyPlugin extends Plugin
 
 	private boolean showAllHP = true;
 
-
 	private final List<NPC> spawnedNpcsThisTick = new ArrayList<>();
 	private final List<NPC> despawnedNpcsThisTick = new ArrayList<>();
-	private final Set<WorldPoint> teleportGraphicsObjectSpawnedThisTick = new HashSet<>();
 
 	private WorldPoint lastPlayerLocation;
-	private final List<Actor> playerInteractingWith = new ArrayList<>();
-	private HashMap<Integer, WorldPoint> npcLocations = new HashMap<>();
+	private final HashMap<Integer, WorldPoint> npcLocations = new HashMap<>();
 
 	@Inject
 	private ClientToolbar clientToolbar;
@@ -351,9 +342,7 @@ public class BossBuddyPlugin extends Plugin
 			return null;
 		}
 
-		ConfigLoot savedConfig = gson.fromJson(json, ConfigLoot.class);
-
-		return savedConfig;
+        return gson.fromJson(json, ConfigLoot.class);
 	}
 
 	@Subscribe
@@ -371,12 +360,6 @@ public class BossBuddyPlugin extends Plugin
 		}
 
 		switchProfile(profileKey);
-	}
-
-
-	private boolean shiftModifier()
-	{
-		return client.isKeyPressed(KeyCode.KC_SHIFT);
 	}
 
 	@Subscribe
@@ -431,7 +414,7 @@ public class BossBuddyPlugin extends Plugin
 		}
 	}
 
-	private Consumer<MenuEntry> splitCoins(int quantity, int splitAmount) {
+	private void splitCoins(int quantity, int splitAmount) {
 		DecimalFormat formatter = new DecimalFormat("#,###");
 		log.info(String.valueOf(quantity / splitAmount));
 
@@ -446,7 +429,6 @@ public class BossBuddyPlugin extends Plugin
 						.runeLiteFormattedMessage(chatMessage)
 						.build());
 
-		return null;
 	}
 
 	@Subscribe
@@ -515,14 +497,12 @@ public class BossBuddyPlugin extends Plugin
 			return;
 		}
 
-		playerInteractingWith.add(opponent);
-
 		lastOpponent = opponent;
 		List<NPC> matchingNPC =  worldView.npcs().stream().filter(npc -> Objects.equals(npc.getName(), lastOpponent.getName()) && npc.getCombatLevel() == lastOpponent.getCombatLevel()).collect(Collectors.toList());
 		for(NPC curNPC: matchingNPC){
 			lastNPC = curNPC;
-			if(loadedDropTableSections != null && !loadedDropTableSections.isEmpty() && loadedDropTableSections.containsKey(curNPC.getId())){
-				currentDropTable = loadedDropTableSections.get(curNPC.getId());
+			if(!loadedDropTableSections.isEmpty() && loadedDropTableSections.containsKey(curNPC.getId())){
+				log.debug("Drop table already loaded");
 			}
 			else
 			{
@@ -551,7 +531,6 @@ public class BossBuddyPlugin extends Plugin
 			{
 				lastOpponent = null;
 				lastNPC = null;
-				currentDropTable = null;
 			}
 		}
 
@@ -580,7 +559,7 @@ public class BossBuddyPlugin extends Plugin
 			}
 		}
 
-		List<Integer> npcToRemove = new ArrayList<Integer>();
+		List<Integer> npcToRemove = new ArrayList<>();
 		for (BossBuddyNPC bossBuddyNPC : this.bossBuddyNPCs.values()){
 			final Instant now = Instant.now();
 			final double baseTick = (bossBuddyNPC.getRespawnTime() - (client.getTickCount() - bossBuddyNPC.getDiedOnTick())) * (net.runelite.api.Constants.GAME_TICK_LENGTH / 1000.0);
@@ -646,8 +625,8 @@ public class BossBuddyPlugin extends Plugin
 			npcId = -1;
 		}
 
-		if(loadedDropTableSections != null && !loadedDropTableSections.isEmpty() && loadedDropTableSections.containsKey(npcId)){
-			currentDropTable = loadedDropTableSections.get(npcId);
+		if(!loadedDropTableSections.isEmpty() && loadedDropTableSections.containsKey(npcId)){
+			log.debug("Drop Table already loaded");
 		}
 		else
 		{
@@ -733,7 +712,6 @@ public class BossBuddyPlugin extends Plugin
 		final NPCComposition npc = event.getComposition();
 		final Collection<ItemStack> items = event.getItems();
 		String name = npc.getName();
-		final int combat = npc.getCombatLevel();
 
 		if (NPC_DISAMBIGUATION_MAP.containsKey(name))
 		{
@@ -812,14 +790,6 @@ public class BossBuddyPlugin extends Plugin
 				.toArray(BossDropItem[]::new);
 	}
 
-	private static Collection<GameItem> toGameItems(Collection<ItemStack> items)
-	{
-		return items.stream()
-				.map(item -> new GameItem(item.getId(), item.getQuantity()))
-				.collect(Collectors.toList());
-	}
-
-
 	@Subscribe
 	public void onNpcSpawned(NpcSpawned npcSpawned)
 	{
@@ -860,7 +830,6 @@ public class BossBuddyPlugin extends Plugin
 			createTimer(npc);
 		}
 
-		playerInteractingWith.remove(actor);
 		npcLocations.remove(npc.getIndex());
 	}
 
@@ -968,14 +937,6 @@ public class BossBuddyPlugin extends Plugin
 		{
 			for (NPC npc : despawnedNpcsThisTick)
 			{
-				if (!teleportGraphicsObjectSpawnedThisTick.isEmpty())
-				{
-					if (teleportGraphicsObjectSpawnedThisTick.contains(npc.getWorldLocation()))
-					{
-						continue;
-					}
-				}
-
 				if (isInViewRange(client.getLocalPlayer().getWorldLocation(), npc.getWorldLocation()))
 				{
 					BossBuddyNPC mn = bossBuddyNPCs.get(npc.getIndex());
@@ -990,15 +951,6 @@ public class BossBuddyPlugin extends Plugin
 
 			for (NPC npc : spawnedNpcsThisTick)
 			{
-				if (!teleportGraphicsObjectSpawnedThisTick.isEmpty())
-				{
-					if (teleportGraphicsObjectSpawnedThisTick.contains(npc.getWorldLocation()) ||
-							teleportGraphicsObjectSpawnedThisTick.contains(getWorldLocationBehind(npc)))
-					{
-						continue;
-					}
-				}
-
 				if (lastPlayerLocation != null && isInViewRange(lastPlayerLocation, npc.getWorldLocation()))
 				{
 					BossBuddyNPC mn = bossBuddyNPCs.get(npc.getIndex());
@@ -1031,7 +983,6 @@ public class BossBuddyPlugin extends Plugin
 
 		spawnedNpcsThisTick.clear();
 		despawnedNpcsThisTick.clear();
-		teleportGraphicsObjectSpawnedThisTick.clear();
 	}
 
 	private static boolean isInViewRange(WorldPoint wp1, WorldPoint wp2)

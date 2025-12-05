@@ -25,10 +25,6 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 public class BossBuddyPanel extends PluginPanel {
@@ -36,21 +32,15 @@ public class BossBuddyPanel extends PluginPanel {
     @Inject
     private Gson gson;
     private ConfigLoot configLoot = null;
-    private BossBuddyConfig config;
+    private final BossBuddyConfig config;
     private BossDropRecord bossDropRecord;
-    private TableResultsPanel tablePanel;
-    private IconTextField monsterSearchField = new IconTextField();
+    private final IconTextField monsterSearchField = new IconTextField();
     private final JPanel mainPanel = new JPanel();
-    private JButton removeLoot = new JButton();
     private final PluginErrorPanel errorPanel = new PluginErrorPanel();
-    private int targetCombatLevel = 0;
-    private int targetMonsterId = -1;
     private String panelMonsterName = "";
     public String profileKey = null;
     private ConfigManager configManager = null;
-    private ItemManager itemManager = null;
     private BossBuddyPlugin plugin = null;
-
     @Inject
     private ClientThread clientThread;
 
@@ -58,7 +48,6 @@ public class BossBuddyPanel extends PluginPanel {
         this.plugin = plugin;
         this.config = config;
         this.configManager = configManager;
-        this.itemManager = itemManager;
         this.gson = gson;
         this.clientThread = clientThread;
         this.profileKey = profileKey;
@@ -76,6 +65,7 @@ public class BossBuddyPanel extends PluginPanel {
 
         buildSearchField();
 
+        JButton removeLoot = new JButton();
         SwingUtil.removeButtonDecorations(removeLoot);
         removeLoot.setText("Remove All Drops");
         removeLoot.setBackground(ColorScheme.DARKER_GRAY_COLOR);
@@ -133,7 +123,7 @@ public class BossBuddyPanel extends PluginPanel {
         remove(errorPanel);
         SwingUtil.fastRemoveAll(mainPanel);
 
-        tablePanel = new TableResultsPanel(this,config, bossDropRecord);
+        TableResultsPanel tablePanel = new TableResultsPanel(this, config, bossDropRecord);
 
         mainPanel.add(tablePanel);
         mainPanel.revalidate();
@@ -171,19 +161,6 @@ public class BossBuddyPanel extends PluginPanel {
                 });
     }
 
-    void buildButton(JButton btn, ImageIcon icon, ImageIcon selectedIcon, String on, String off, ActionListener listener) {
-        SwingUtil.removeButtonDecorations(btn);
-        btn.setIcon(icon);
-        btn.setSelectedIcon(selectedIcon);
-        btn.setBackground(ColorScheme.DARKER_GRAY_COLOR);
-        btn.setUI(new BasicButtonUI());
-
-        SwingUtil.addModalTooltip(btn, on, off);
-        Util.showHandCursorOnHover(btn);
-        btn.addActionListener(listener);
-    }
-
-
     void searchForMonsterName(String monsterName) {
         if (monsterName.isEmpty()) return;
         
@@ -198,15 +175,6 @@ public class BossBuddyPanel extends PluginPanel {
 
         panelMonsterName = monsterName;
         clientThread.invokeLater(()-> plugin.buildPanelItems(configLoot));
-    }
-
-
-    public void refreshMainPanel() {
-        if (bossDropRecord != null) {
-            SwingUtilities.invokeLater(() -> {
-                rebuildMainPanel();
-            });
-        }
     }
 
     public void refreshMainPanelWithRecords(String monsterName, BossDropItem[] bdi, int killCount) {
@@ -246,16 +214,6 @@ public class BossBuddyPanel extends PluginPanel {
         SwingUtilities.invokeLater(() -> {
             resetSearchField();
             resetMainPanel();
-        });
-    }
-
-    public void lookupMonsterDrops(String monsterName, int combatLevel, int monsterId) {
-        targetCombatLevel = combatLevel;
-        targetMonsterId = monsterId;
-
-        SwingUtilities.invokeLater(() -> {
-            monsterSearchField.setText(monsterName);
-            searchForMonsterName(monsterName);
         });
     }
 
