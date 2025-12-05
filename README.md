@@ -29,7 +29,7 @@ Overlay to display currently equipped items while using the Bank interface to he
 ![img_5.png](img_5.png)
 
 <h1>Loot Settings</h1>
-Display Wiki drop rate data/Track drop kill count, date, GE value at the time of drop
+Display Wiki drop rate data/Track drop kill count, date, GE value at the time of drop.
 
 ![img_8.png](img_8.png)
 
@@ -37,7 +37,7 @@ Set minimum drop rate that you would like to see displayed in the chat.
 
 ![img_6.png](img_6.png)
 
-Set minimum GE value of drops that you would like to track in the side panel.2
+Set minimum GE value of drops that you would like to track in the side panel.
 
 ![img_7.png](img_7.png)
 
