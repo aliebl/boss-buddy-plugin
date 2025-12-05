@@ -1,7 +1,6 @@
 package com.bossbuddy.hp;
 
 import javax.inject.Inject;
-
 import com.bossbuddy.Boss;
 import com.bossbuddy.BossBuddyConfig;
 import com.bossbuddy.BossBuddyNPC;
@@ -13,12 +12,10 @@ import net.runelite.client.game.NPCManager;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPosition;
-
 import java.awt.*;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-
 import static net.runelite.api.gameval.NpcID.*;
 import static net.runelite.api.gameval.VarbitID.HPBAR_HUD_BASEHP;
 import static net.runelite.api.gameval.VarbitID.HPBAR_HUD_HP;
@@ -38,9 +35,9 @@ public class HPOverlay extends Overlay
 	protected boolean useRunescapeFont = true;
 	protected Font font = null;
 
-	NumberFormat format = new DecimalFormat("#");
-	NumberFormat oneDecimalFormat = new DecimalFormat("#.0");
-	NumberFormat twoDecimalFormat = new DecimalFormat("#.00");
+	final NumberFormat format = new DecimalFormat("#");
+	final NumberFormat oneDecimalFormat = new DecimalFormat("#.0");
+	final NumberFormat twoDecimalFormat = new DecimalFormat("#.00");
 
 	@Inject
 	HPOverlay(BossBuddyPlugin plugin, BossBuddyConfig config, NPCManager npcManager)

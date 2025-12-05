@@ -1,7 +1,6 @@
 package com.bossbuddy.osrswiki;
 
 import com.bossbuddy.util.Util;
-
 import java.text.NumberFormat;
 import java.util.Objects;
 
@@ -18,7 +17,7 @@ public class WikiItem
 	private final int exchangePrice;
 	private final int alchemyPrice;
 
-	NumberFormat nf = NumberFormat.getNumberInstance();
+	final NumberFormat nf = NumberFormat.getNumberInstance();
 
 	public WikiItem(String imageUrl, String name, int quantity, String quantityStr, String rarityStr, double rarity, int exchangePrice, int alchemyPrice)
 	{

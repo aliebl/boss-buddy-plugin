@@ -97,6 +97,7 @@ public class BossBuddyPlugin extends Plugin
 	@Inject
 	private Client client;
 
+
 	@Inject
 	private ClientThread clientThread;
 
@@ -128,9 +129,6 @@ public class BossBuddyPlugin extends Plugin
 	private ConfigManager configManager;
 
 	@Inject
-	private EventBus eventBus;
-
-	@Inject
 	private Gson gson;
 
 	@Inject
@@ -142,7 +140,7 @@ public class BossBuddyPlugin extends Plugin
 	@Getter(AccessLevel.PACKAGE)
 	public Instant lastTickUpdate;
 
-	DateTimeFormatter formatter = DateTimeFormatter
+	final DateTimeFormatter formatter = DateTimeFormatter
 		.ofPattern("yyyyMMdd")
 		.withZone(ZoneOffset.UTC);
 
@@ -179,7 +177,7 @@ public class BossBuddyPlugin extends Plugin
 	private NavigationButton navButton;
 
 	@Override
-	protected void startUp() throws Exception
+	protected void startUp()
 	{
 
 		profileKey = null;
@@ -196,7 +194,7 @@ public class BossBuddyPlugin extends Plugin
 		{
 			switchProfile(profileKey);
 		}
-		panel = new BossBuddyPanel(this, config, configManager, itemManager, gson, clientThread, profileKey);
+		panel = new BossBuddyPanel(this, config, configManager, gson, clientThread, profileKey);
 
 		navButton =
 			NavigationButton.builder()
@@ -222,7 +220,7 @@ public class BossBuddyPlugin extends Plugin
 
 
 	@Override
-	protected void shutDown() throws Exception
+	protected void shutDown()
 	{
 		clientThread.invoke(() ->
 		{
@@ -393,7 +391,7 @@ public class BossBuddyPlugin extends Plugin
 				if (itemId == COINS)
 				{
 
-					MenuEntry splitCoins = client.createMenuEntry(idx)
+					MenuEntry splitCoins = entry
 						.setOption("Split")
 						.setTarget(entry.getTarget())
 						.setType(MenuAction.RUNELITE);
