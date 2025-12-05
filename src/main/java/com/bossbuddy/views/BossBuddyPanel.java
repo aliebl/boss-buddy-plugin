@@ -27,200 +27,220 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 @Slf4j
-public class BossBuddyPanel extends PluginPanel {
+public class BossBuddyPanel extends PluginPanel
+{
 
-    @Inject
-    private Gson gson;
-    private ConfigLoot configLoot = null;
-    private final BossBuddyConfig config;
-    private BossDropRecord bossDropRecord;
-    private final IconTextField monsterSearchField = new IconTextField();
-    private final JPanel mainPanel = new JPanel();
-    private final PluginErrorPanel errorPanel = new PluginErrorPanel();
-    private String panelMonsterName = "";
-    public String profileKey = null;
-    private ConfigManager configManager = null;
-    private BossBuddyPlugin plugin = null;
-    @Inject
-    private ClientThread clientThread;
+	@Inject
+	private Gson gson;
+	private ConfigLoot configLoot = null;
+	private final BossBuddyConfig config;
+	private BossDropRecord bossDropRecord;
+	private final IconTextField monsterSearchField = new IconTextField();
+	private final JPanel mainPanel = new JPanel();
+	private final PluginErrorPanel errorPanel = new PluginErrorPanel();
+	private String panelMonsterName = "";
+	public String profileKey = null;
+	private ConfigManager configManager = null;
+	private BossBuddyPlugin plugin = null;
+	@Inject
+	private ClientThread clientThread;
 
-    public BossBuddyPanel(BossBuddyPlugin plugin, BossBuddyConfig config, ConfigManager configManager, ItemManager itemManager, Gson gson, ClientThread clientThread, String profileKey) {
-        this.plugin = plugin;
-        this.config = config;
-        this.configManager = configManager;
-        this.gson = gson;
-        this.clientThread = clientThread;
-        this.profileKey = profileKey;
+	public BossBuddyPanel(BossBuddyPlugin plugin, BossBuddyConfig config, ConfigManager configManager, ItemManager itemManager, Gson gson, ClientThread clientThread, String profileKey)
+	{
+		this.plugin = plugin;
+		this.config = config;
+		this.configManager = configManager;
+		this.gson = gson;
+		this.clientThread = clientThread;
+		this.profileKey = profileKey;
 
-        // Layout
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBackground(ColorScheme.DARK_GRAY_COLOR);
+		// Layout
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		setBackground(ColorScheme.DARK_GRAY_COLOR);
 
-        // Main Panel
+		// Main Panel
 
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
+		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+		mainPanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
 
-        // Search Field
+		// Search Field
 
-        buildSearchField();
+		buildSearchField();
 
-        JButton removeLoot = new JButton();
-        SwingUtil.removeButtonDecorations(removeLoot);
-        removeLoot.setText("Remove All Drops");
-        removeLoot.setBackground(ColorScheme.DARKER_GRAY_COLOR);
-        removeLoot.setUI(new BasicButtonUI());
-        removeLoot.setToolTipText("Remove All Drops");
-        removeLoot.setPreferredSize(new Dimension(PluginPanel.PANEL_WIDTH, 30));
-        removeLoot.setMinimumSize(new Dimension(PluginPanel.PANEL_WIDTH - 20, 30));
-        Util.showHandCursorOnHover(removeLoot);
+		JButton removeLoot = new JButton();
+		SwingUtil.removeButtonDecorations(removeLoot);
+		removeLoot.setText("Remove All Drops");
+		removeLoot.setBackground(ColorScheme.DARKER_GRAY_COLOR);
+		removeLoot.setUI(new BasicButtonUI());
+		removeLoot.setToolTipText("Remove All Drops");
+		removeLoot.setPreferredSize(new Dimension(PluginPanel.PANEL_WIDTH, 30));
+		removeLoot.setMinimumSize(new Dimension(PluginPanel.PANEL_WIDTH - 20, 30));
+		Util.showHandCursorOnHover(removeLoot);
 
-        removeLoot.addMouseListener(
-                new MouseAdapter() {
-                    @Override
-                    public void mouseClicked(MouseEvent evt) {
-                        removeAllLoot(monsterSearchField.getText());
-                    }
-                });
+		removeLoot.addMouseListener(
+			new MouseAdapter()
+			{
+				@Override
+				public void mouseClicked(MouseEvent evt)
+				{
+					removeAllLoot(monsterSearchField.getText());
+				}
+			});
 
-        removeLoot.setLayout(new BorderLayout());
+		removeLoot.setLayout(new BorderLayout());
 
-        // Error Panel - Empty State
-        errorPanel.setContent(Constants.PLUGIN_NAME, "Enter a monster name.");
+		// Error Panel - Empty State
+		errorPanel.setContent(Constants.PLUGIN_NAME, "Enter a monster name.");
 
-        add(monsterSearchField);
+		add(monsterSearchField);
 
-        add(mainPanel);
-        add(errorPanel);
-       // add(removeLoot);
-    }
+		add(mainPanel);
+		add(errorPanel);
+		// add(removeLoot);
+	}
 
-    void removeRecord(int itemIndex){
+	void removeRecord(int itemIndex)
+	{
 
-        log.info(String.valueOf(itemIndex * 4));
-        log.info(String.valueOf(configLoot.getDrops()[itemIndex * 4]));
-        clientThread.invokeLater(()->  plugin.removeLoot(panelMonsterName,itemIndex * 4));
+		log.info(String.valueOf(itemIndex * 4));
+		log.info(String.valueOf(configLoot.getDrops()[itemIndex * 4]));
+		clientThread.invokeLater(() -> plugin.removeLoot(panelMonsterName, itemIndex * 4));
 
-         //remove item from drops and reset loot config
-        //plugin.removeRecord(itemIndex);
-    }
+		//remove item from drops and reset loot config
+		//plugin.removeRecord(itemIndex);
+	}
 
-    public void setLootConfig(String name, ConfigLoot loot)
-    {
-        String profile = profileKey;
-        if (Strings.isNullOrEmpty(profile))
-        {
-            log.debug("Trying to set loot with no profile!");
-            return;
-        }
+	public void setLootConfig(String name, ConfigLoot loot)
+	{
+		String profile = profileKey;
+		if (Strings.isNullOrEmpty(profile))
+		{
+			log.debug("Trying to set loot with no profile!");
+			return;
+		}
 
-        String json = gson.toJson(loot);
-        configManager.setConfiguration(BossBuddyConfig.GROUP, profile, "BOSS_BUDDY_NPC_" + name.toUpperCase(), json);
-    }
+		String json = gson.toJson(loot);
+		configManager.setConfiguration(BossBuddyConfig.GROUP, profile, "BOSS_BUDDY_NPC_" + name.toUpperCase(), json);
+	}
 
 
-    void rebuildMainPanel() {
-        remove(errorPanel);
-        SwingUtil.fastRemoveAll(mainPanel);
+	void rebuildMainPanel()
+	{
+		remove(errorPanel);
+		SwingUtil.fastRemoveAll(mainPanel);
 
-        TableResultsPanel tablePanel = new TableResultsPanel(this, config, bossDropRecord);
+		TableResultsPanel tablePanel = new TableResultsPanel(this, config, bossDropRecord);
 
-        mainPanel.add(tablePanel);
-        mainPanel.revalidate();
-        mainPanel.repaint();
-    }
+		mainPanel.add(tablePanel);
+		mainPanel.revalidate();
+		mainPanel.repaint();
+	}
 
-    void resetMainPanel() {
-        SwingUtil.fastRemoveAll(mainPanel);
-        mainPanel.revalidate();
-        mainPanel.repaint();
-        add(errorPanel);
-    }
+	void resetMainPanel()
+	{
+		SwingUtil.fastRemoveAll(mainPanel);
+		mainPanel.revalidate();
+		mainPanel.repaint();
+		add(errorPanel);
+	}
 
-    void buildSearchField() {
-        monsterSearchField.setIcon(IconTextField.Icon.SEARCH);
-        monsterSearchField.setPreferredSize(new Dimension(PluginPanel.PANEL_WIDTH - 20, 30));
-        monsterSearchField.setBackground(ColorScheme.DARKER_GRAY_COLOR);
-        monsterSearchField.setHoverBackgroundColor(ColorScheme.DARK_GRAY_HOVER_COLOR);
-        monsterSearchField.setMinimumSize(new Dimension(0, 30));
+	void buildSearchField()
+	{
+		monsterSearchField.setIcon(IconTextField.Icon.SEARCH);
+		monsterSearchField.setPreferredSize(new Dimension(PluginPanel.PANEL_WIDTH - 20, 30));
+		monsterSearchField.setBackground(ColorScheme.DARKER_GRAY_COLOR);
+		monsterSearchField.setHoverBackgroundColor(ColorScheme.DARK_GRAY_HOVER_COLOR);
+		monsterSearchField.setMinimumSize(new Dimension(0, 30));
 
-        monsterSearchField.addActionListener(
-                evt -> {
-                    searchForMonsterName(monsterSearchField.getText());
-                });
-        monsterSearchField.addMouseListener(
-                new MouseAdapter() {
-                    @Override
-                    public void mouseClicked(MouseEvent evt) {
-                        searchForMonsterName(monsterSearchField.getText());
-                    }
-                });
-        monsterSearchField.addClearListener(
-                () -> {
-                    reset();
-                });
-    }
+		monsterSearchField.addActionListener(
+			evt -> {
+				searchForMonsterName(monsterSearchField.getText());
+			});
+		monsterSearchField.addMouseListener(
+			new MouseAdapter()
+			{
+				@Override
+				public void mouseClicked(MouseEvent evt)
+				{
+					searchForMonsterName(monsterSearchField.getText());
+				}
+			});
+		monsterSearchField.addClearListener(
+			() -> {
+				reset();
+			});
+	}
 
-    void searchForMonsterName(String monsterName) {
-        if (monsterName.isEmpty()) return;
-        
-        monsterSearchField.setEditable(false);
-        monsterSearchField.setIcon(IconTextField.Icon.LOADING_DARKER);
-        configLoot = getLootConfig(monsterName);
-        monsterSearchField.setIcon(configLoot == null? IconTextField.Icon.ERROR : IconTextField.Icon.SEARCH);
-        monsterSearchField.setEditable(true);
+	void searchForMonsterName(String monsterName)
+	{
+		if (monsterName.isEmpty())
+		{
+			return;
+		}
 
-        if(configLoot == null)
-            return;
+		monsterSearchField.setEditable(false);
+		monsterSearchField.setIcon(IconTextField.Icon.LOADING_DARKER);
+		configLoot = getLootConfig(monsterName);
+		monsterSearchField.setIcon(configLoot == null ? IconTextField.Icon.ERROR : IconTextField.Icon.SEARCH);
+		monsterSearchField.setEditable(true);
 
-        panelMonsterName = monsterName;
-        clientThread.invokeLater(()-> plugin.buildPanelItems(configLoot));
-    }
+		if (configLoot == null)
+		{
+			return;
+		}
 
-    public void refreshMainPanelWithRecords(String monsterName, BossDropItem[] bdi, int killCount) {
-        configLoot = getLootConfig(monsterName);
-        bossDropRecord = new BossDropRecord(monsterName, bdi, killCount);
+		panelMonsterName = monsterName;
+		clientThread.invokeLater(() -> plugin.buildPanelItems(configLoot));
+	}
 
-        SwingUtilities.invokeLater(() -> {
-            rebuildMainPanel();
-        });
-    }
+	public void refreshMainPanelWithRecords(String monsterName, BossDropItem[] bdi, int killCount)
+	{
+		configLoot = getLootConfig(monsterName);
+		bossDropRecord = new BossDropRecord(monsterName, bdi, killCount);
 
-    ConfigLoot getLootConfig(String name)
-    {
-        String profile = profileKey;
-        if (Strings.isNullOrEmpty(profile))
-        {
-            log.debug("Trying to get loot with no profile!");
-            return null;
-        }
+		SwingUtilities.invokeLater(() -> {
+			rebuildMainPanel();
+		});
+	}
 
-        String json = configManager.getConfiguration(BossBuddyConfig.GROUP, profile, "BOSS_BUDDY_NPC_" + name.toUpperCase());
-        if (json == null)
-        {
-            return null;
-        }
+	ConfigLoot getLootConfig(String name)
+	{
+		String profile = profileKey;
+		if (Strings.isNullOrEmpty(profile))
+		{
+			log.debug("Trying to get loot with no profile!");
+			return null;
+		}
 
-        return gson.fromJson(json, ConfigLoot.class);
-    }
+		String json = configManager.getConfiguration(BossBuddyConfig.GROUP, profile, "BOSS_BUDDY_NPC_" + name.toUpperCase());
+		if (json == null)
+		{
+			return null;
+		}
 
-    void resetSearchField() {
-        monsterSearchField.setIcon(IconTextField.Icon.SEARCH);
-        monsterSearchField.setText("");
-        monsterSearchField.setEditable(true);
-    }
+		return gson.fromJson(json, ConfigLoot.class);
+	}
 
-    public void reset() {
-        SwingUtilities.invokeLater(() -> {
-            resetSearchField();
-            resetMainPanel();
-        });
-    }
+	void resetSearchField()
+	{
+		monsterSearchField.setIcon(IconTextField.Icon.SEARCH);
+		monsterSearchField.setText("");
+		monsterSearchField.setEditable(true);
+	}
 
-    public void removeAllLoot(String monsterName) {
-        ConfigLoot lootConfig = getLootConfig(monsterName);
-        int[] newArray = new int[0];
-        lootConfig.setDrops(newArray);
-        setLootConfig(lootConfig.getName(), lootConfig);
-    }
+	public void reset()
+	{
+		SwingUtilities.invokeLater(() -> {
+			resetSearchField();
+			resetMainPanel();
+		});
+	}
+
+	public void removeAllLoot(String monsterName)
+	{
+		ConfigLoot lootConfig = getLootConfig(monsterName);
+		int[] newArray = new int[0];
+		lootConfig.setDrops(newArray);
+		setLootConfig(lootConfig.getName(), lootConfig);
+	}
 }

@@ -7,22 +7,26 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Value
-public class BossDropRecord {
-    @NonNull
-    private final String bossName;
-    private final BossDropItem[] items;
-    private final int kills;
+public class BossDropRecord
+{
+	@NonNull
+	private final String bossName;
+	private final BossDropItem[] items;
+	private final int kills;
 
-    public int GEPriceTotal(){
-        int totalPrice = 0;
-        for(BossDropItem item : items){
-            totalPrice += item.getGePrice();
-        }
-        return totalPrice;
-    }
+	public int GEPriceTotal()
+	{
+		int totalPrice = 0;
+		for (BossDropItem item : items)
+		{
+			totalPrice += item.getGePrice();
+		}
+		return totalPrice;
+	}
 
-    public String GEPriceTotalFormatted() {
+	public String GEPriceTotalFormatted()
+	{
 
-        return   GEPriceTotal() > 0 ? Util.rsFormat(GEPriceTotal()) : "";
-    }
+		return GEPriceTotal() > 0 ? Util.rsFormat(GEPriceTotal()) : "";
+	}
 }

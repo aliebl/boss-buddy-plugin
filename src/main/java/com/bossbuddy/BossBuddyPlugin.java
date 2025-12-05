@@ -143,18 +143,18 @@ public class BossBuddyPlugin extends Plugin
 	public Instant lastTickUpdate;
 
 	DateTimeFormatter formatter = DateTimeFormatter
-			.ofPattern("yyyyMMdd")
-			.withZone(ZoneOffset.UTC);
+		.ofPattern("yyyyMMdd")
+		.withZone(ZoneOffset.UTC);
 
 	private static final Multimap<String, String> NPC_DISAMBIGUATION_MAP = ImmutableMultimap.of(
-			"Dusk", "Grotesque Guardians"
+		"Dusk", "Grotesque Guardians"
 	);
 
 	private String profileKey;
 	private final Map<Integer, DropTableSection[]> loadedDropTableSections = new HashMap<>();
 
 	@Getter(AccessLevel.PUBLIC)
-    public final Map<Integer, BossBuddyNPC> bossBuddyNPCs = new HashMap<>();
+	public final Map<Integer, BossBuddyNPC> bossBuddyNPCs = new HashMap<>();
 
 	private List<String> showNPCs = new ArrayList<>();
 	private List<String> showNPCsWithTypes = new ArrayList<>();
@@ -196,15 +196,15 @@ public class BossBuddyPlugin extends Plugin
 		{
 			switchProfile(profileKey);
 		}
-		panel = new BossBuddyPanel(this,config, configManager, itemManager, gson, clientThread, profileKey);
+		panel = new BossBuddyPanel(this, config, configManager, itemManager, gson, clientThread, profileKey);
 
 		navButton =
-				NavigationButton.builder()
-						.tooltip(Constants.PLUGIN_NAME)
-						.icon(Icons.navImg)
-						.priority(Constants.DEFAULT_PRIORITY)
-						.panel(panel)
-						.build();
+			NavigationButton.builder()
+				.tooltip(Constants.PLUGIN_NAME)
+				.icon(Icons.navImg)
+				.priority(Constants.DEFAULT_PRIORITY)
+				.panel(panel)
+				.build();
 
 		clientToolbar.addNavigation(navButton);
 		overlayManager.add(hpOverlay);
@@ -263,12 +263,14 @@ public class BossBuddyPlugin extends Plugin
 		});
 	}
 
-	public void buildPanelItems(ConfigLoot lootConfig){
+	public void buildPanelItems(ConfigLoot lootConfig)
+	{
 		BossDropItem[] bdi = buildBossDropItemsFromConfig(lootConfig);
 		panel.refreshMainPanelWithRecords(lootConfig.getName(), bdi, lootConfig.getKills());
 	}
 
-	private BossDropItem[] buildBossDropItemsFromConfig(ConfigLoot configLoot){
+	private BossDropItem[] buildBossDropItemsFromConfig(ConfigLoot configLoot)
+	{
 		int dropsCount = configLoot.numDrops();
 		int[] drops = configLoot.getDrops();
 
@@ -279,7 +281,7 @@ public class BossBuddyPlugin extends Plugin
 			int killCount = drops[i + 1];
 			int gePrice = drops[i + 2];
 			int date = drops[i + 3];
-			items[i /4] = buildBossDropItem(id, 0, killCount, gePrice, date);
+			items[i / 4] = buildBossDropItem(id, 0, killCount, gePrice, date);
 		}
 		return items;
 	}
@@ -288,30 +290,36 @@ public class BossBuddyPlugin extends Plugin
 	{
 		final ItemComposition itemComposition = itemManager.getItemComposition(itemId);
 		if (gePrice == -1)
+		{
 			gePrice = itemManager.getItemPrice(itemId);
+		}
 
 		boolean tradeable = itemComposition.isTradeable();
 		int isNoted = itemComposition.getNote();
 
-		if (isNoted == 799){
+		if (isNoted == 799)
+		{
 			int noteId = itemComposition.getLinkedNoteId();
-			if (noteId != -1){
+			if (noteId != -1)
+			{
 				ItemComposition notedItem = itemManager.getItemComposition(noteId);
 				tradeable = notedItem.isTradeable();
 			}
 		}
 		if (Objects.equals(itemComposition.getName(), "Coins"))
+		{
 			tradeable = true;
+		}
 
 		return new BossDropItem(
-				itemId,
-				itemComposition.getMembersName(),
-				quantity,
-				killCount,
-				date,
-				gePrice,
-				tradeable,
-				itemManager.getImage(itemId));
+			itemId,
+			itemComposition.getMembersName(),
+			quantity,
+			killCount,
+			date,
+			gePrice,
+			tradeable,
+			itemManager.getImage(itemId));
 	}
 
 	public void setLootConfig(String name, ConfigLoot loot)
@@ -342,7 +350,7 @@ public class BossBuddyPlugin extends Plugin
 			return null;
 		}
 
-        return gson.fromJson(json, ConfigLoot.class);
+		return gson.fromJson(json, ConfigLoot.class);
 	}
 
 	@Subscribe
@@ -363,8 +371,10 @@ public class BossBuddyPlugin extends Plugin
 	}
 
 	@Subscribe
-	public void onMenuOpened(final MenuOpened event){
-		if(!config.coinSplit()){
+	public void onMenuOpened(final MenuOpened event)
+	{
+		if (!config.coinSplit())
+		{
 			return;
 		}
 
@@ -375,59 +385,61 @@ public class BossBuddyPlugin extends Plugin
 			final Widget w = entry.getWidget();
 
 			if (w != null && WidgetUtil.componentToInterface(w.getId()) == InterfaceID.INVENTORY
-					&& "Examine".equals(entry.getOption()) && entry.getIdentifier() == 10)
+				&& "Examine".equals(entry.getOption()) && entry.getIdentifier() == 10)
 			{
 
 				final int itemId = w.getItemId();
 				final int itemCount = w.getItemQuantity();
-				if (itemId == COINS){
+				if (itemId == COINS)
+				{
 
 					MenuEntry splitCoins = client.createMenuEntry(idx)
-							.setOption("Split")
-							.setTarget(entry.getTarget())
-							.setType(MenuAction.RUNELITE);
+						.setOption("Split")
+						.setTarget(entry.getTarget())
+						.setType(MenuAction.RUNELITE);
 
 					Menu subLeft = splitCoins.createSubMenu();
 
 					subLeft.createMenuEntry(-1)
-							.setOption("Split 2")
-							.setType(MenuAction.RUNELITE)
-							.onClick(e-> splitCoins(itemCount,2));
+						.setOption("Split 2")
+						.setType(MenuAction.RUNELITE)
+						.onClick(e -> splitCoins(itemCount, 2));
 
 					subLeft.createMenuEntry(-1)
-							.setOption("Split 3")
-							.setType(MenuAction.RUNELITE)
-							.onClick(e->splitCoins(itemCount,3));
+						.setOption("Split 3")
+						.setType(MenuAction.RUNELITE)
+						.onClick(e -> splitCoins(itemCount, 3));
 
 					subLeft.createMenuEntry(-1)
-							.setOption("Split 4")
-							.setType(MenuAction.RUNELITE)
-							.onClick(e->splitCoins(itemCount,4));
+						.setOption("Split 4")
+						.setType(MenuAction.RUNELITE)
+						.onClick(e -> splitCoins(itemCount, 4));
 
 					subLeft.createMenuEntry(-1)
-							.setOption("Split 5")
-							.setType(MenuAction.RUNELITE)
-							.onClick(e->splitCoins(itemCount,5));
+						.setOption("Split 5")
+						.setType(MenuAction.RUNELITE)
+						.onClick(e -> splitCoins(itemCount, 5));
 
-					}
+				}
 			}
 		}
 	}
 
-	private void splitCoins(int quantity, int splitAmount) {
+	private void splitCoins(int quantity, int splitAmount)
+	{
 		DecimalFormat formatter = new DecimalFormat("#,###");
 		log.info(String.valueOf(quantity / splitAmount));
 
 		String chatMessage = new ChatMessageBuilder()
-				.append(ChatColorType.HIGHLIGHT)
-				.append(String.format("Split: %s / %d = %s",formatter.format(quantity), splitAmount, formatter.format(quantity / splitAmount)))
-				.build();
+			.append(ChatColorType.HIGHLIGHT)
+			.append(String.format("Split: %s / %d = %s", formatter.format(quantity), splitAmount, formatter.format(quantity / splitAmount)))
+			.build();
 
 		chatMessageManager.queue(
-				QueuedMessage.builder()
-						.type(ChatMessageType.CONSOLE)
-						.runeLiteFormattedMessage(chatMessage)
-						.build());
+			QueuedMessage.builder()
+				.type(ChatMessageType.CONSOLE)
+				.runeLiteFormattedMessage(chatMessage)
+				.build());
 
 	}
 
@@ -435,7 +447,7 @@ public class BossBuddyPlugin extends Plugin
 	public void onGameStateChanged(GameStateChanged gameStateChanged)
 	{
 		if (gameStateChanged.getGameState() == GameState.LOGIN_SCREEN ||
-				gameStateChanged.getGameState() == GameState.HOPPING)
+			gameStateChanged.getGameState() == GameState.HOPPING)
 		{
 			bossBuddyNPCs.forEach((id, npc) -> npc.setDiedOnTick(-1));
 			lastPlayerLocation = null;
@@ -498,10 +510,12 @@ public class BossBuddyPlugin extends Plugin
 		}
 
 		lastOpponent = opponent;
-		List<NPC> matchingNPC =  worldView.npcs().stream().filter(npc -> Objects.equals(npc.getName(), lastOpponent.getName()) && npc.getCombatLevel() == lastOpponent.getCombatLevel()).collect(Collectors.toList());
-		for(NPC curNPC: matchingNPC){
+		List<NPC> matchingNPC = worldView.npcs().stream().filter(npc -> Objects.equals(npc.getName(), lastOpponent.getName()) && npc.getCombatLevel() == lastOpponent.getCombatLevel()).collect(Collectors.toList());
+		for (NPC curNPC : matchingNPC)
+		{
 			lastNPC = curNPC;
-			if(!loadedDropTableSections.isEmpty() && loadedDropTableSections.containsKey(curNPC.getId())){
+			if (!loadedDropTableSections.isEmpty() && loadedDropTableSections.containsKey(curNPC.getId()))
+			{
 				log.debug("Drop table already loaded");
 			}
 			else
@@ -524,8 +538,8 @@ public class BossBuddyPlugin extends Plugin
 		lastPlayerLocation = client.getLocalPlayer().getWorldLocation();
 
 		if (lastOpponent != null
-				&& lastTime != null
-				&& client.getLocalPlayer().getInteracting() == null)
+			&& lastTime != null
+			&& client.getLocalPlayer().getInteracting() == null)
 		{
 			if (Duration.between(lastTime, Instant.now()).compareTo(WAIT) > 0)
 			{
@@ -534,78 +548,97 @@ public class BossBuddyPlugin extends Plugin
 			}
 		}
 
-		if (!config.showOverlay()) {
+		if (!config.showOverlay())
+		{
 			return;
 		}
 
 		HashMap<WorldPoint, Integer> locationCount = new HashMap<>();
-		for (WorldPoint location : npcLocations.values()) {
+		for (WorldPoint location : npcLocations.values())
+		{
 			locationCount.put(location, locationCount.getOrDefault(location, 0) + 1);
 		}
 
-		for (NPC npc : client.getTopLevelWorldView().npcs()) {
-			if (!isNpcInList(npc)) {
+		for (NPC npc : client.getTopLevelWorldView().npcs())
+		{
+			if (!isNpcInList(npc))
+			{
 				continue;
 			}
 
-			if(npc.getCombatLevel() <= 0) {
+			if (npc.getCombatLevel() <= 0)
+			{
 				continue;
 			}
 
 			BossBuddyNPC bossBuddyNPC = bossBuddyNPCs.get(npc.getIndex());
 
-			if (bossBuddyNPC != null) {
+			if (bossBuddyNPC != null)
+			{
 				updateBossBuddyNPCProperties(npc, bossBuddyNPC, locationCount);
 			}
 		}
 
 		List<Integer> npcToRemove = new ArrayList<>();
-		for (BossBuddyNPC bossBuddyNPC : this.bossBuddyNPCs.values()){
+		for (BossBuddyNPC bossBuddyNPC : this.bossBuddyNPCs.values())
+		{
 			final Instant now = Instant.now();
 			final double baseTick = (bossBuddyNPC.getRespawnTime() - (client.getTickCount() - bossBuddyNPC.getDiedOnTick())) * (net.runelite.api.Constants.GAME_TICK_LENGTH / 1000.0);
 			final double sinceLast = (now.toEpochMilli() - this.lastTickUpdate.toEpochMilli()) / 1000.0;
-			final double timeLeft =  baseTick - sinceLast;
+			final double timeLeft = baseTick - sinceLast;
 
-			if(timeLeft <= -60 && !isInViewRange(client.getLocalPlayer().getWorldLocation(), bossBuddyNPC.getNpc().getWorldLocation())){
+			if (timeLeft <= -60 && !isInViewRange(client.getLocalPlayer().getWorldLocation(), bossBuddyNPC.getNpc().getWorldLocation()))
+			{
 				npcToRemove.add(bossBuddyNPC.getNpcIndex());
 			}
 		}
 
-		for(Integer npcIndex : 	npcToRemove){
+		for (Integer npcIndex : npcToRemove)
+		{
 			this.bossBuddyNPCs.remove(npcIndex);
 		}
 	}
 
-	private void updateBossBuddyNPCProperties(NPC npc, BossBuddyNPC bossBuddyNPC, Map<WorldPoint, Integer> locationCount) {
+	private void updateBossBuddyNPCProperties(NPC npc, BossBuddyNPC bossBuddyNPC, Map<WorldPoint, Integer> locationCount)
+	{
 		double monsterHp = ((double) npc.getHealthRatio() / (double) npc.getHealthScale() * 100);
 
 		boolean isBoss = Boss.isNpcBoss(npc);
-		if (isBoss) {
+		if (isBoss)
+		{
 			final int curHp = client.getVarbitValue(HPBAR_HUD_HP);
 			final int maxHp = client.getVarbitValue(HPBAR_HUD_BASEHP);
-			if (maxHp > 0 && curHp >= 0) {
+			if (maxHp > 0 && curHp >= 0)
+			{
 				double hpVarbitRatio = 100.0 * curHp / maxHp;
-				if (hpVarbitRatio > 0) {
+				if (hpVarbitRatio > 0)
+				{
 					monsterHp = hpVarbitRatio;
 				}
-			} else {
+			}
+			else
+			{
 				return;
 			}
 		}
 		boolean isDoomBoss = Boss.DOOM_BOSS_IDS.contains(npc.getId());
 
-		if (!npc.isDead() && ((npc.getHealthRatio() / npc.getHealthScale() != 1) || isDoomBoss)) {
+		if (!npc.isDead() && ((npc.getHealthRatio() / npc.getHealthScale() != 1) || isDoomBoss))
+		{
 			bossBuddyNPC.setHealthRatio(monsterHp);
 			bossBuddyNPC.setCurrentLocation(npc.getWorldLocation());
 			bossBuddyNPC.setDead(false);
 
 			WorldPoint currentLocation = bossBuddyNPC.getCurrentLocation();
 
-			if (locationCount.containsKey(currentLocation)) {
+			if (locationCount.containsKey(currentLocation))
+			{
 				bossBuddyNPC.setOffset(locationCount.get(currentLocation) - 1);
 				locationCount.put(currentLocation, locationCount.get(currentLocation) - 1);
 			}
-		} else if (npc.isDead()) {
+		}
+		else if (npc.isDead())
+		{
 			bossBuddyNPC.setHealthRatio(0);
 			bossBuddyNPC.setDead(true);
 		}
@@ -613,7 +646,7 @@ public class BossBuddyPlugin extends Plugin
 		npcLocations.put(bossBuddyNPC.getNpcIndex(), bossBuddyNPC.getCurrentLocation());
 	}
 
-	private void checkRates(BossDropItem item,  NPCComposition npc)
+	private void checkRates(BossDropItem item, NPCComposition npc)
 	{
 		int npcId = npc.getId();
 		String npcName = npc.getName();
@@ -625,7 +658,8 @@ public class BossBuddyPlugin extends Plugin
 			npcId = -1;
 		}
 
-		if(!loadedDropTableSections.isEmpty() && loadedDropTableSections.containsKey(npcId)){
+		if (!loadedDropTableSections.isEmpty() && loadedDropTableSections.containsKey(npcId))
+		{
 			log.debug("Drop Table already loaded");
 		}
 		else
@@ -641,67 +675,81 @@ public class BossBuddyPlugin extends Plugin
 
 		DropTableSection[] dropTableSections = loadedDropTableSections.get(npcId);
 		if (dropTableSections == null)
+		{
 			return;
+		}
 
 		boolean foundDrop = false;
 		Map<String, Integer> commonDrops = new HashMap<>();
-		for (DropTableSection section : dropTableSections) {
+		for (DropTableSection section : dropTableSections)
+		{
 			Map<String, WikiItem[]> dropTables = section.getTable();
 
-			for (Map.Entry<String, WikiItem[]> wikiEntry : dropTables.entrySet()) {
+			for (Map.Entry<String, WikiItem[]> wikiEntry : dropTables.entrySet())
+			{
 
 				WikiItem[] wikiItems = wikiEntry.getValue();
 
 				String dropItemName = item.getName();
 				int dropItemQuant = item.getQuantity();
 
-				if(commonDrops.containsKey(dropItemName) && commonDrops.get(dropItemName) == dropItemQuant) {
+				if (commonDrops.containsKey(dropItemName) && commonDrops.get(dropItemName) == dropItemQuant)
+				{
 					log.info("Most likely rare drop that is under report rate");
 					continue;
 				}
 
-				WikiItem wikiItem = Arrays.stream(wikiItems).filter(k-> Objects.equals(k.getName(), dropItemName) && k.quantityMatch(dropItemQuant)).findFirst().orElse(null);
-				if(wikiItem != null){
+				WikiItem wikiItem = Arrays.stream(wikiItems).filter(k -> Objects.equals(k.getName(), dropItemName) && k.quantityMatch(dropItemQuant)).findFirst().orElse(null);
+				if (wikiItem != null)
+				{
 
 					String itemRarity = wikiItem.getRarityLabelText(false);
 					if (Objects.equals(itemRarity, "Always") || Objects.equals(wikiItem.getName(), "Coins"))
+					{
 						continue;
+					}
 
 					if (itemRarity.contains(";"))
+					{
 						itemRarity = Arrays.stream(itemRarity.split(";")).findFirst().get();
+					}
 
 					BossDropFraction itemRarityFraction = BossDropFraction.parseFraction(itemRarity);
 					BossDropFraction rarityLimitFraction = BossDropFraction.parseFraction(config.dropRarityLimit());
 					int fractionCompare = itemRarityFraction.compareTo(rarityLimitFraction);
 
-					if(fractionCompare > 0) {
-						commonDrops.put(dropItemName,dropItemQuant);
+					if (fractionCompare > 0)
+					{
+						commonDrops.put(dropItemName, dropItemQuant);
 						continue;
 					}
 
 					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 					String formattedDate = sdf.format(new Date());
 
-					String chatMessageString = String.format("Item: %s - Rarity: %s",item.getName(), itemRarity);
-					if(config.displayDate()){
-						chatMessageString =  String.format("%s - Date: %s",chatMessageString, formattedDate);
+					String chatMessageString = String.format("Item: %s - Rarity: %s", item.getName(), itemRarity);
+					if (config.displayDate())
+					{
+						chatMessageString = String.format("%s - Date: %s", chatMessageString, formattedDate);
 					}
 
 					String chatMessage = new ChatMessageBuilder()
-							.append(ChatColorType.HIGHLIGHT)
-							.append(chatMessageString)
-							.build();
+						.append(ChatColorType.HIGHLIGHT)
+						.append(chatMessageString)
+						.build();
 
 					chatMessageManager.queue(
-							QueuedMessage.builder()
-									.type(ChatMessageType.CONSOLE)
-									.runeLiteFormattedMessage(chatMessage)
-									.build());
+						QueuedMessage.builder()
+							.type(ChatMessageType.CONSOLE)
+							.runeLiteFormattedMessage(chatMessage)
+							.build());
 					foundDrop = true;
 					break;
 				}
 				if (foundDrop)
+				{
 					break;
+				}
 			}
 		}
 	}
@@ -720,33 +768,41 @@ public class BossBuddyPlugin extends Plugin
 		}
 
 		int killCount = getKc(name);
-		addLoot( npc, items, killCount);
+		addLoot(npc, items, killCount);
 	}
 
 	private int getKc(String npcName)
 	{
 		Integer killCount = configManager.getRSProfileConfiguration("killcount", npcName.toLowerCase(), int.class);
-		if(killCount == null){
-			String bossBuddyJson  = configManager.getConfiguration(BossBuddyConfig.GROUP, profileKey, "BOSS_BUDDY_NPC_" + npcName.toUpperCase());
+		if (killCount == null)
+		{
+			String bossBuddyJson = configManager.getConfiguration(BossBuddyConfig.GROUP, profileKey, "BOSS_BUDDY_NPC_" + npcName.toUpperCase());
 			String lootTrackerJson = configManager.getConfiguration(BossBuddyConfig.LOOT_TRACKER_GROUP, profileKey, "drops_NPC_" + npcName);
 
-			if(bossBuddyJson == null && lootTrackerJson != null) {
+			if (bossBuddyJson == null && lootTrackerJson != null)
+			{
 				ConfigLoot savedConfig = gson.fromJson(lootTrackerJson, ConfigLoot.class);
 				killCount = savedConfig.kills;
-			} else if (bossBuddyJson != null && lootTrackerJson != null) {
+			}
+			else if (bossBuddyJson != null && lootTrackerJson != null)
+			{
 				ConfigLoot bbConfig = gson.fromJson(bossBuddyJson, ConfigLoot.class);
 				ConfigLoot ltConfig = gson.fromJson(lootTrackerJson, ConfigLoot.class);
 
-				if (ltConfig.kills > bbConfig.kills){
+				if (ltConfig.kills > bbConfig.kills)
+				{
 					bbConfig.kills = ltConfig.kills;
-                }
-                killCount = bbConfig.kills;
+				}
+				killCount = bbConfig.kills;
 
-            } else if(bossBuddyJson != null){
+			}
+			else if (bossBuddyJson != null)
+			{
 				ConfigLoot savedConfig = gson.fromJson(bossBuddyJson, ConfigLoot.class);
 				killCount = savedConfig.kills;
 			}
-			else{
+			else
+			{
 				killCount = 0;
 			}
 		}
@@ -757,9 +813,12 @@ public class BossBuddyPlugin extends Plugin
 	{
 		int intdate = Integer.parseInt(formatter.format(Instant.now()));
 		final BossDropItem[] entries = buildEntries(stack(items), killCount, intdate);
-		for(BossDropItem bdi : entries) {
-			if (Objects.equals(bdi.getName(), "Dwarf remains") || Arrays.stream(config.ignoreItems().split(",")).anyMatch(k-> k.equals(bdi.getName())))
+		for (BossDropItem bdi : entries)
+		{
+			if (Objects.equals(bdi.getName(), "Dwarf remains") || Arrays.stream(config.ignoreItems().split(",")).anyMatch(k -> k.equals(bdi.getName())))
+			{
 				continue;
+			}
 
 			checkRates(bdi, npc);
 			ConfigLoot lootConfig = getLootConfig(npc.getName());
@@ -770,10 +829,11 @@ public class BossBuddyPlugin extends Plugin
 
 			lootConfig.kills = killCount;
 
-			if(bdi.getGePrice() * bdi.getQuantity() >= config.trackBossDropValue() || !bdi.isTradeable()){
+			if (bdi.getGePrice() * bdi.getQuantity() >= config.trackBossDropValue() || !bdi.isTradeable())
+			{
 				lootConfig.lastDropKC = bdi.getKillCount();
 				lootConfig.lastDrop = bdi.getName();
-				lootConfig.add(bdi.getId(), bdi.getKillCount(),  bdi.getGePrice() * bdi.getQuantity(), bdi.getDate());
+				lootConfig.add(bdi.getId(), bdi.getKillCount(), bdi.getGePrice() * bdi.getQuantity(), bdi.getDate());
 				lootConfig.last = Instant.now();
 			}
 
@@ -786,8 +846,8 @@ public class BossBuddyPlugin extends Plugin
 	private BossDropItem[] buildEntries(final Collection<ItemStack> itemStacks, int killCount, int date)
 	{
 		return itemStacks.stream()
-				.map(itemStack -> buildBossDropItem(itemStack.getId(),itemStack.getQuantity(), killCount, -1, date))
-				.toArray(BossDropItem[]::new);
+			.map(itemStack -> buildBossDropItem(itemStack.getId(), itemStack.getQuantity(), killCount, -1, date))
+			.toArray(BossDropItem[]::new);
 	}
 
 	@Subscribe
@@ -795,23 +855,33 @@ public class BossBuddyPlugin extends Plugin
 	{
 		final NPC npc = npcSpawned.getNpc();
 		final String npcName = npc.getName();
-		if (!isNpcInList(npc)) return;
+		if (!isNpcInList(npc))
+		{
+			return;
+		}
 
-		if (npcName == null) return;
-		if(npc.getCombatLevel() <= 0) {
+		if (npcName == null)
+		{
+			return;
+		}
+		if (npc.getCombatLevel() <= 0)
+		{
 			return;
 		}
 
 		BossBuddyNPC previousNPC = bossBuddyNPCs.get(npc.getIndex());
 		BossBuddyNPC bossBuddyNPC = new BossBuddyNPC(npc);
 
-		if (previousNPC != null){
+		if (previousNPC != null)
+		{
 			bossBuddyNPC.setDiedOnTick(previousNPC.getDiedOnTick());
 
 		}
 
 		if (isNpcNumericDefined(npc))
+		{
 			bossBuddyNPC.setIsTypeNumeric(1);
+		}
 
 		bossBuddyNPC.setDead(false);
 		spawnedNpcsThisTick.add(npc);
@@ -823,10 +893,14 @@ public class BossBuddyPlugin extends Plugin
 	public void onNpcDespawned(NpcDespawned npcDespawned)
 	{
 		NPC npc = npcDespawned.getNpc();
-		if (npc == null || !isNpcInList(npc)) return;
+		if (npc == null || !isNpcInList(npc))
+		{
+			return;
+		}
 		Actor actor = npcDespawned.getActor();
 
-		if (bossBuddyNPCs.containsKey(npc.getIndex())) {
+		if (bossBuddyNPCs.containsKey(npc.getIndex()))
+		{
 			createTimer(npc);
 		}
 
@@ -834,7 +908,8 @@ public class BossBuddyPlugin extends Plugin
 	}
 
 	@Subscribe
-	public void onNpcChanged(NpcChanged e) {
+	public void onNpcChanged(NpcChanged e)
+	{
 		final NPC npc = e.getNpc();
 		int id = npc.getId();
 		int idx = npc.getIndex();
@@ -845,84 +920,108 @@ public class BossBuddyPlugin extends Plugin
 			npcLocations.remove(idx);
 		}
 
-		if(id == 412)
+		if (id == 412)
+		{
 			return;
+		}
 
-		if (isNpcInList(npc)) {
+		if (isNpcInList(npc))
+		{
 			BossBuddyNPC previousNPC = bossBuddyNPCs.get(npc.getIndex());
 			BossBuddyNPC bossBuddyNPC = new BossBuddyNPC(npc);
 
-			if (previousNPC != null){
+			if (previousNPC != null)
+			{
 				bossBuddyNPC.setDiedOnTick(previousNPC.getDiedOnTick());
 			}
 
 			if (isNpcNumericDefined(npc))
+			{
 				bossBuddyNPC.setIsTypeNumeric(1);
+			}
 
 			bossBuddyNPCs.put(idx, bossBuddyNPC);
 			npcLocations.put(idx, npc.getWorldLocation());
-		} else {
+		}
+		else
+		{
 			bossBuddyNPCs.remove(idx);
 			npcLocations.remove(idx);
 		}
 	}
 
-	private void createTimer(NPC npc) {
+	private void createTimer(NPC npc)
+	{
 		RespawnTimer timer = null;
 		BossBuddyNPC bossBuddyNPC = bossBuddyNPCs.get(npc.getIndex());
 		bossBuddyNPC.setDead(true);
 		despawnedNpcsThisTick.add(npc);
 		clearTimer(bossBuddyNPC);
 
-		if(Boss.isNpcBoss(npc)  && config.bossRespawnTimer()){
+		if (Boss.isNpcBoss(npc) && config.bossRespawnTimer())
+		{
 			Boss boss = Boss.find(npc.getId());
-			if(boss != null && !boss.isIgnoreAlarm()) {
+			if (boss != null && !boss.isIgnoreAlarm())
+			{
 				//log.info("Creating boss spawn timer for {} ({})", bossBuddyNPC.getNpcName(), boss.getSpawnTime());
 				timer = new RespawnTimer(bossBuddyNPC, boss, itemManager.getImage(boss.getItemSpriteId()), this);
 
 			}
 		}
-		else{
-			if (bossBuddyNPC.getRespawnTime() > -1  && config.npcRespawnTimer()){
+		else
+		{
+			if (bossBuddyNPC.getRespawnTime() > -1 && config.npcRespawnTimer())
+			{
 				//log.info("Creating spawn timer for {} ({})", npc.getName(), bossBuddyNPC.getRespawnTime());
 				timer = new RespawnTimer(bossBuddyNPC, itemManager.getImage(ItemID.SKULL), this);
 				timer.setTooltip(npc.getName());
 			}
 		}
 
-		if (timer != null) {
+		if (timer != null)
+		{
 			timer.setTooltip(bossBuddyNPC.getNpcName());
 			infoBoxManager.addInfoBox(timer);
 			createRespawnNotification(timer, bossBuddyNPC.getNpcName(), Boss.isNpcBoss(npc));
 		}
 	}
 
-	private void clearTimer(BossBuddyNPC bossBuddyNPC) {
+	private void clearTimer(BossBuddyNPC bossBuddyNPC)
+	{
 		infoBoxManager.removeIf(t -> t instanceof RespawnTimer && ((RespawnTimer) t).getBossBuddyNPC() == bossBuddyNPC);
 	}
 
-	private void createRespawnNotification(RespawnTimer timer, String npcName, boolean isBoss){
+	private void createRespawnNotification(RespawnTimer timer, String npcName, boolean isBoss)
+	{
 		RespawnNotification respawnNotification = new RespawnNotification(npcName, notifier);
 		boolean createNotification = isBoss && config.bossRespawnNotification();
 
-        if(!isBoss && config.npcRespawnNotification())
+		if (!isBoss && config.npcRespawnNotification())
+		{
 			createNotification = true;
+		}
 
-		if(createNotification) {
+		if (createNotification)
+		{
 			Timer t = new java.util.Timer();
 			t.schedule(
-					new java.util.TimerTask() {
-						@Override
-						public void run() {
-							try {
-								respawnNotification.call();
-							} catch (Exception e) {
-								throw new RuntimeException(e);
-							}
-							t.cancel();
+				new java.util.TimerTask()
+				{
+					@Override
+					public void run()
+					{
+						try
+						{
+							respawnNotification.call();
 						}
-					},
-					timer.getDuration().minusSeconds(5).toMillis()
+						catch (Exception e)
+						{
+							throw new RuntimeException(e);
+						}
+						t.cancel();
+					}
+				},
+				timer.getDuration().minusSeconds(5).toMillis()
 			);
 		}
 	}
@@ -971,7 +1070,7 @@ public class BossBuddyPlugin extends Plugin
 					final WorldPoint possibleOtherNpcLocation = getWorldLocationBehind(npc);
 
 					mn.getPossibleRespawnLocations().removeIf(x ->
-							!x.equals(npcLocation) && !x.equals(possibleOtherNpcLocation));
+						!x.equals(npcLocation) && !x.equals(possibleOtherNpcLocation));
 
 					if (mn.getPossibleRespawnLocations().isEmpty())
 					{
@@ -1032,12 +1131,15 @@ public class BossBuddyPlugin extends Plugin
 		return new WorldPoint(currWP.getX() - dx, currWP.getY() - dy, currWP.getPlane());
 	}
 
-	public void removeLoot(String monsterName, int indexToRemove) {
+	public void removeLoot(String monsterName, int indexToRemove)
+	{
 		ConfigLoot lootConfig = getLootConfig(monsterName);
 		int[] newArray = new int[lootConfig.getDrops().length - 4];
 		int newArrayIndex = 0;
-		for (int i = 0; i < lootConfig.getDrops().length; i++) {
-			if (i != indexToRemove && i != indexToRemove + 1 && i != indexToRemove + 2 && i != indexToRemove + 3) {
+		for (int i = 0; i < lootConfig.getDrops().length; i++)
+		{
+			if (i != indexToRemove && i != indexToRemove + 1 && i != indexToRemove + 2 && i != indexToRemove + 3)
+			{
 				newArray[newArrayIndex++] = lootConfig.getDrops()[i];
 			}
 		}
@@ -1047,13 +1149,17 @@ public class BossBuddyPlugin extends Plugin
 
 	}
 
-	public void removeLoot(String monsterName, int indexToRemove, boolean removeAll) {
+	public void removeLoot(String monsterName, int indexToRemove, boolean removeAll)
+	{
 		ConfigLoot lootConfig = getLootConfig(monsterName);
 		int[] newArray = new int[lootConfig.getDrops().length - 3];
 		int newArrayIndex = 0;
-		for (int i = 0; i < lootConfig.getDrops().length; i++) {
-			if(!removeAll) {
-				if (i != indexToRemove && i != indexToRemove + 1 && i != indexToRemove + 2) {
+		for (int i = 0; i < lootConfig.getDrops().length; i++)
+		{
+			if (!removeAll)
+			{
+				if (i != indexToRemove && i != indexToRemove + 1 && i != indexToRemove + 2)
+				{
 					newArray[newArrayIndex++] = lootConfig.getDrops()[i];
 				}
 			}
@@ -1064,26 +1170,32 @@ public class BossBuddyPlugin extends Plugin
 
 	}
 
-	private boolean isNpcNameInShowAllBlacklist(String npcName) {
+	private boolean isNpcNameInShowAllBlacklist(String npcName)
+	{
 		return npcName != null && (showNPCBlacklist.contains(npcName.toLowerCase()) ||
-				showNPCBlacklist.stream().anyMatch(pattern -> WildcardMatcher.matches(pattern, npcName)));
+			showNPCBlacklist.stream().anyMatch(pattern -> WildcardMatcher.matches(pattern, npcName)));
 	}
 
-	private boolean isNpcNameInList(String npcName) {
+	private boolean isNpcNameInList(String npcName)
+	{
 		return npcName != null && (showNPCs.contains(npcName.toLowerCase()) ||
-				showNPCs.stream().anyMatch(pattern -> WildcardMatcher.matches(pattern, npcName)));
+			showNPCs.stream().anyMatch(pattern -> WildcardMatcher.matches(pattern, npcName)));
 	}
 
-	private boolean isNpcIdInList(int npcId) {
+	private boolean isNpcIdInList(int npcId)
+	{
 		return showNPCIDs.contains(String.valueOf(npcId));
 	}
 
-	public boolean isNpcIdBlacklisted(NPC npc) {
+	public boolean isNpcIdBlacklisted(NPC npc)
+	{
 		String npcName = npc.getName();
-		if (npcName != null) {
+		if (npcName != null)
+		{
 			int id = npc.getId();
 
-			switch (npcName) {
+			switch (npcName)
+			{
 				case "Duke Sucellus": // duke sucellus - allow only fight id to be tracked from duke
 					return id != DUKE_SUCELLUS_AWAKE && id != DUKE_SUCELLUS_ASLEEP;
 				case "Vardorvis":
@@ -1105,12 +1217,17 @@ public class BossBuddyPlugin extends Plugin
 		return false;
 	}
 
-	private boolean isNpcInList(NPC npc) {
-		if (isNpcIdBlacklisted(npc)) return false;
+	private boolean isNpcInList(NPC npc)
+	{
+		if (isNpcIdBlacklisted(npc))
+		{
+			return false;
+		}
 
 		boolean isInList = (isNpcNameInList(npc.getName()) || isNpcIdInList(npc.getId()));
 
-		if (!isInList) {
+		if (!isInList)
+		{
 			return this.showAllHP && !isNpcNameInShowAllBlacklist(npc.getName());
 		}
 
@@ -1118,8 +1235,10 @@ public class BossBuddyPlugin extends Plugin
 	}
 
 	@Subscribe
-	public void onConfigChanged(ConfigChanged configChanged) {
-		if (Objects.equals(configChanged.getGroup(), "MonsterHP") && (Objects.equals(configChanged.getKey(), "npcShowAll") || Objects.equals(configChanged.getKey(), "npcShowAllBlacklist") || Objects.equals(configChanged.getKey(), "npcToShowHp") || Objects.equals(configChanged.getKey(), "npcIdToShowHp"))) {
+	public void onConfigChanged(ConfigChanged configChanged)
+	{
+		if (Objects.equals(configChanged.getGroup(), "MonsterHP") && (Objects.equals(configChanged.getKey(), "npcShowAll") || Objects.equals(configChanged.getKey(), "npcShowAllBlacklist") || Objects.equals(configChanged.getKey(), "npcToShowHp") || Objects.equals(configChanged.getKey(), "npcIdToShowHp")))
+		{
 			showNPCs = getSelectedNpcNames(false);
 			showNPCIDs = getSelectedNpcIds();
 
@@ -1132,21 +1251,25 @@ public class BossBuddyPlugin extends Plugin
 
 	}
 
-	List<String> getShowAllBlacklistNames() {
+	List<String> getShowAllBlacklistNames()
+	{
 		String configNPCs = config.npcShowAllBlacklist().toLowerCase();
 		return configNPCs.isEmpty() ? Collections.emptyList() : Text.fromCSV(configNPCs);
 	}
 
 	@VisibleForTesting
-	List<String> getSelectedNpcNames(boolean includeDisplaytype) {
+	List<String> getSelectedNpcNames(boolean includeDisplaytype)
+	{
 		String configNPCs = config.npcNameShowHP().toLowerCase();
-		if (configNPCs.isEmpty()) {
+		if (configNPCs.isEmpty())
+		{
 			return Collections.emptyList();
 		}
 
 		List<String> selectedNpcNamesRaw = Text.fromCSV(configNPCs);
 
-		if (!includeDisplaytype) {
+		if (!includeDisplaytype)
+		{
 			List<String> strippedNpcNames = new ArrayList<>(selectedNpcNamesRaw);
 			strippedNpcNames.replaceAll(npcName -> npcName != null && npcName.contains(":") ? npcName.split(":")[0] : npcName);
 
@@ -1157,9 +1280,11 @@ public class BossBuddyPlugin extends Plugin
 	}
 
 	@VisibleForTesting
-	List<String> getSelectedNpcIds() {
+	List<String> getSelectedNpcIds()
+	{
 		String configNPCIDs = config.npcIDShowHP().toLowerCase();
-		if (configNPCIDs.isEmpty()) {
+		if (configNPCIDs.isEmpty())
+		{
 			return Collections.emptyList();
 		}
 
@@ -1167,34 +1292,43 @@ public class BossBuddyPlugin extends Plugin
 	}
 
 	@VisibleForTesting
-	boolean isNpcNumericDefined(NPC npc) {
+	boolean isNpcNumericDefined(NPC npc)
+	{
 		String npcNameTargetLowerCase = Objects.requireNonNull(npc.getName()).toLowerCase();
 
-		for (String npcNameRaw : showNPCsWithTypes) {
+		for (String npcNameRaw : showNPCsWithTypes)
+		{
 			String npcName = npcNameRaw.contains(":") ? npcNameRaw.split(":")[0] : npcNameRaw;
 			boolean isMatch = WildcardMatcher.matches(npcName, npcNameTargetLowerCase);
 
-			if (npcNameRaw.contains(":n") && isMatch) {
+			if (npcNameRaw.contains(":n") && isMatch)
+			{
 				return true;
 			}
 		}
 		return false;
 	}
 
-	private void rebuildAllNpcs() {
+	private void rebuildAllNpcs()
+	{
 		bossBuddyNPCs.clear();
 
 		if (client.getGameState() != GameState.LOGGED_IN &&
-				client.getGameState() != GameState.LOADING) {
+			client.getGameState() != GameState.LOADING)
+		{
 			return;
 		}
 
-		for (NPC npc : client.getTopLevelWorldView().npcs()) {
-			if (isNpcInList(npc)) {
+		for (NPC npc : client.getTopLevelWorldView().npcs())
+		{
+			if (isNpcInList(npc))
+			{
 				BossBuddyNPC bossBuddyNPC = new BossBuddyNPC(npc);
 
 				if (isNpcNumericDefined(npc))
+				{
 					bossBuddyNPC.setIsTypeNumeric(1);
+				}
 
 				bossBuddyNPCs.put(npc.getIndex(), bossBuddyNPC);
 				npcLocations.put(npc.getIndex(), npc.getWorldLocation());
