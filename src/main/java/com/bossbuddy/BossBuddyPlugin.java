@@ -129,6 +129,9 @@ public class BossBuddyPlugin extends Plugin
 	private ConfigManager configManager;
 
 	@Inject
+	private EventBus eventBus;
+
+	@Inject
 	private Gson gson;
 
 	@Inject
@@ -140,7 +143,7 @@ public class BossBuddyPlugin extends Plugin
 	@Getter(AccessLevel.PACKAGE)
 	public Instant lastTickUpdate;
 
-	final DateTimeFormatter formatter = DateTimeFormatter
+	DateTimeFormatter formatter = DateTimeFormatter
 		.ofPattern("yyyyMMdd")
 		.withZone(ZoneOffset.UTC);
 
@@ -177,7 +180,7 @@ public class BossBuddyPlugin extends Plugin
 	private NavigationButton navButton;
 
 	@Override
-	protected void startUp()
+	protected void startUp() throws Exception
 	{
 
 		profileKey = null;
@@ -194,7 +197,7 @@ public class BossBuddyPlugin extends Plugin
 		{
 			switchProfile(profileKey);
 		}
-		panel = new BossBuddyPanel(this, config, configManager, gson, clientThread, profileKey);
+		panel = new BossBuddyPanel(this, config, configManager, itemManager, gson, clientThread, profileKey);
 
 		navButton =
 			NavigationButton.builder()
@@ -220,7 +223,7 @@ public class BossBuddyPlugin extends Plugin
 
 
 	@Override
-	protected void shutDown()
+	protected void shutDown() throws Exception
 	{
 		clientThread.invoke(() ->
 		{
@@ -391,7 +394,7 @@ public class BossBuddyPlugin extends Plugin
 				if (itemId == COINS)
 				{
 
-					MenuEntry splitCoins = entry
+					MenuEntry splitCoins = client.createMenuEntry(idx)
 						.setOption("Split")
 						.setTarget(entry.getTarget())
 						.setType(MenuAction.RUNELITE);
@@ -1255,7 +1258,6 @@ public class BossBuddyPlugin extends Plugin
 		return configNPCs.isEmpty() ? Collections.emptyList() : Text.fromCSV(configNPCs);
 	}
 
-	@VisibleForTesting
 	List<String> getSelectedNpcNames(boolean includeDisplaytype)
 	{
 		String configNPCs = config.npcNameShowHP().toLowerCase();

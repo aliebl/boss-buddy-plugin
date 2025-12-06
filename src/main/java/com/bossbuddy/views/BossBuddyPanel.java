@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
+import net.runelite.client.game.ItemManager;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.PluginPanel;
 import net.runelite.client.ui.components.IconTextField;
@@ -21,6 +22,7 @@ import javax.inject.Inject;
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicButtonUI;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -43,7 +45,7 @@ public class BossBuddyPanel extends PluginPanel
 	@Inject
 	private ClientThread clientThread;
 
-	public BossBuddyPanel(BossBuddyPlugin plugin, BossBuddyConfig config, ConfigManager configManager, Gson gson, ClientThread clientThread, String profileKey)
+	public BossBuddyPanel(BossBuddyPlugin plugin, BossBuddyConfig config, ConfigManager configManager, ItemManager itemManager, Gson gson, ClientThread clientThread, String profileKey)
 	{
 		this.plugin = plugin;
 		this.config = config;

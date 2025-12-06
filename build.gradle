@@ -3,14 +3,15 @@ plugins {
 }
 
 repositories {
-	mavenLocal()
+    mavenCentral()
+    mavenLocal()
 	maven {
 		url = 'https://repo.runelite.net'
 		content {
 			includeGroupByRegex("net\\.runelite.*")
 		}
 	}
-	mavenCentral()
+
 }
 
 def runeLiteVersion = 'latest.release'
@@ -18,10 +19,10 @@ def runeLiteVersion = 'latest.release'
 dependencies {
 	compileOnly 'net.runelite:client:'+ runeLiteVersion
 
-	implementation 'org.jsoup:jsoup:1.21.2'
+	implementation 'org.jsoup:jsoup:1.15.3'
 
-	compileOnly 'org.projectlombok:lombok:1.18.40'
-	annotationProcessor 'org.projectlombok:lombok:1.18.40'
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+	annotationProcessor 'org.projectlombok:lombok:1.18.30'
 
 	testImplementation 'junit:junit:4.13.1'
 	testImplementation 'net.runelite:client:'+ runeLiteVersion

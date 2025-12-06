@@ -17,7 +17,7 @@ public class WikiItem
 	private final int exchangePrice;
 	private final int alchemyPrice;
 
-	final NumberFormat nf = NumberFormat.getNumberInstance();
+	NumberFormat nf = NumberFormat.getNumberInstance();
 
 	public WikiItem(String imageUrl, String name, int quantity, String quantityStr, String rarityStr, double rarity, int exchangePrice, int alchemyPrice)
 	{

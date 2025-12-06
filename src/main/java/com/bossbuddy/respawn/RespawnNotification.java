@@ -17,7 +17,7 @@ public class RespawnNotification implements Callable<String>
 	}
 
 	@Override
-	public String call()
+	public String call() throws Exception
 	{
 		notifier.notify(npcName + " is about to spawn.");
 		return "Result from " + npcName + " timer";

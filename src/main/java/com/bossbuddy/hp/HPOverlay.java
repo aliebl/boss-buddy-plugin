@@ -35,9 +35,9 @@ public class HPOverlay extends Overlay
 	protected boolean useRunescapeFont = true;
 	protected Font font = null;
 
-	final NumberFormat format = new DecimalFormat("#");
-	final NumberFormat oneDecimalFormat = new DecimalFormat("#.0");
-	final NumberFormat twoDecimalFormat = new DecimalFormat("#.00");
+	NumberFormat format = new DecimalFormat("#");
+	NumberFormat oneDecimalFormat = new DecimalFormat("#.0");
+	NumberFormat twoDecimalFormat = new DecimalFormat("#.00");
 
 	@Inject
 	HPOverlay(BossBuddyPlugin plugin, BossBuddyConfig config, NPCManager npcManager)

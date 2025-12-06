@@ -10,6 +10,8 @@ import net.runelite.client.ui.FontManager;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +22,7 @@ public class TableBox extends JPanel
 	private final TableResultsPanel tableResultsPanel;
 
 	private final BossDropRecord bossDropRecord;
-	public final BossDropItem[] items;
+	public BossDropItem[] items;
 	private final String fullHeaderStr;
 	private String headerStr;
 
