@@ -94,11 +94,6 @@ public class WikiItem
 		return amount == Integer.parseInt(quantityStr);
 	}
 
-	public String getQuantityValueText()
-	{
-		return quantity > 0 ? "x" + Util.rsFormat(quantity) : "";
-	}
-
 	public String getRarityLabelText(boolean percentMode)
 	{
 		String rarityLabelStr = rarityStr.contains(";") || rarityStr.equals("Always") || rarityStr.contains(" × ") ? rarityStr : Util.convertDecimalToFraction(rarity);
@@ -107,14 +102,5 @@ public class WikiItem
 			rarityLabelStr = Util.toPercentage(rarity, rarity <= 0.0001 ? 3 : 2);
 		}
 		return rarityLabelStr;
-	}
-
-	public static int findGCD(int a, int b)
-	{
-		if (b == 0)
-		{
-			return a;
-		}
-		return findGCD(b, a % b);
 	}
 }
