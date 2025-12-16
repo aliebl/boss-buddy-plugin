@@ -62,8 +62,6 @@ import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
 import static net.runelite.api.gameval.NpcID.*;
 import static net.runelite.api.gameval.VarbitID.*;
-import net.runelite.client.util.Text;
-import net.runelite.client.util.WildcardMatcher;
 import okhttp3.OkHttpClient;
 
 @SuppressWarnings("SameReturnValue")
@@ -143,6 +141,9 @@ public class BossBuddyPlugin extends Plugin
 	@Getter(AccessLevel.PACKAGE)
 	public Instant lastTickUpdate;
 
+	@Getter(AccessLevel.PUBLIC)
+	public final Map<Integer, BossBuddyNPC> bossBuddyNPCs = new HashMap<>();
+
 	DateTimeFormatter formatter = DateTimeFormatter
 		.ofPattern("yyyyMMdd")
 		.withZone(ZoneOffset.UTC);
@@ -153,20 +154,8 @@ public class BossBuddyPlugin extends Plugin
 
 	private String profileKey;
 	private final Map<Integer, DropTableSection[]> loadedDropTableSections = new HashMap<>();
-
-	@Getter(AccessLevel.PUBLIC)
-	public final Map<Integer, BossBuddyNPC> bossBuddyNPCs = new HashMap<>();
-
-	private List<String> showNPCs = new ArrayList<>();
-	private List<String> showNPCsWithTypes = new ArrayList<>();
-	private List<String> showNPCIDs = new ArrayList<>();
-	private List<String> showNPCBlacklist = new ArrayList<>();
-
-	private boolean showAllHP = true;
-
 	private final List<NPC> spawnedNpcsThisTick = new ArrayList<>();
 	private final List<NPC> despawnedNpcsThisTick = new ArrayList<>();
-
 	private WorldPoint lastPlayerLocation;
 	private final HashMap<Integer, WorldPoint> npcLocations = new HashMap<>();
 
@@ -182,7 +171,6 @@ public class BossBuddyPlugin extends Plugin
 	@Override
 	protected void startUp() throws Exception
 	{
-
 		profileKey = null;
 
 		if (client.getGameState() == GameState.LOGGED_IN)
@@ -197,7 +185,7 @@ public class BossBuddyPlugin extends Plugin
 		{
 			switchProfile(profileKey);
 		}
-		panel = new BossBuddyPanel(this, config, configManager, itemManager, gson, clientThread, profileKey);
+		panel = new BossBuddyPanel(this, config, configManager, gson, clientThread, profileKey);
 
 		navButton =
 			NavigationButton.builder()
@@ -211,16 +199,9 @@ public class BossBuddyPlugin extends Plugin
 		overlayManager.add(hpOverlay);
 		overlayManager.add(respawnOverlay);
 		overlayManager.add(equipmentOverlay);
-		showNPCs = getSelectedNpcNames(false);
-		showNPCsWithTypes = getSelectedNpcNames(true);
-		showNPCIDs = getSelectedNpcIds();
-
-		this.showAllHP = config.npcShowAllHP();
-		showNPCBlacklist = getShowAllBlacklistNames();
 
 		clientThread.invokeLater(this::rebuildAllNpcs);
 	}
-
 
 	@Override
 	protected void shutDown() throws Exception
@@ -562,11 +543,6 @@ public class BossBuddyPlugin extends Plugin
 
 		for (NPC npc : client.getTopLevelWorldView().npcs())
 		{
-			if (!isNpcInList(npc))
-			{
-				continue;
-			}
-
 			if (npc.getCombatLevel() <= 0)
 			{
 				continue;
@@ -856,10 +832,6 @@ public class BossBuddyPlugin extends Plugin
 	{
 		final NPC npc = npcSpawned.getNpc();
 		final String npcName = npc.getName();
-		if (!isNpcInList(npc))
-		{
-			return;
-		}
 
 		if (npcName == null)
 		{
@@ -876,12 +848,6 @@ public class BossBuddyPlugin extends Plugin
 		if (previousNPC != null)
 		{
 			bossBuddyNPC.setDiedOnTick(previousNPC.getDiedOnTick());
-
-		}
-
-		if (isNpcNumericDefined(npc))
-		{
-			bossBuddyNPC.setIsTypeNumeric(1);
 		}
 
 		bossBuddyNPC.setDead(false);
@@ -894,7 +860,7 @@ public class BossBuddyPlugin extends Plugin
 	public void onNpcDespawned(NpcDespawned npcDespawned)
 	{
 		NPC npc = npcDespawned.getNpc();
-		if (npc == null || !isNpcInList(npc))
+		if (npc == null)
 		{
 			return;
 		}
@@ -926,29 +892,16 @@ public class BossBuddyPlugin extends Plugin
 			return;
 		}
 
-		if (isNpcInList(npc))
+		BossBuddyNPC previousNPC = bossBuddyNPCs.get(npc.getIndex());
+		BossBuddyNPC bossBuddyNPC = new BossBuddyNPC(npc);
+
+		if (previousNPC != null)
 		{
-			BossBuddyNPC previousNPC = bossBuddyNPCs.get(npc.getIndex());
-			BossBuddyNPC bossBuddyNPC = new BossBuddyNPC(npc);
-
-			if (previousNPC != null)
-			{
-				bossBuddyNPC.setDiedOnTick(previousNPC.getDiedOnTick());
-			}
-
-			if (isNpcNumericDefined(npc))
-			{
-				bossBuddyNPC.setIsTypeNumeric(1);
-			}
-
-			bossBuddyNPCs.put(idx, bossBuddyNPC);
-			npcLocations.put(idx, npc.getWorldLocation());
+			bossBuddyNPC.setDiedOnTick(previousNPC.getDiedOnTick());
 		}
-		else
-		{
-			bossBuddyNPCs.remove(idx);
-			npcLocations.remove(idx);
-		}
+
+		bossBuddyNPCs.put(idx, bossBuddyNPC);
+		npcLocations.put(idx, npc.getWorldLocation());
 	}
 
 	private void createTimer(NPC npc)
@@ -1171,142 +1124,13 @@ public class BossBuddyPlugin extends Plugin
 
 	}
 
-	private boolean isNpcNameInShowAllBlacklist(String npcName)
-	{
-		return npcName != null && (showNPCBlacklist.contains(npcName.toLowerCase()) ||
-			showNPCBlacklist.stream().anyMatch(pattern -> WildcardMatcher.matches(pattern, npcName)));
-	}
-
-	private boolean isNpcNameInList(String npcName)
-	{
-		return npcName != null && (showNPCs.contains(npcName.toLowerCase()) ||
-			showNPCs.stream().anyMatch(pattern -> WildcardMatcher.matches(pattern, npcName)));
-	}
-
-	private boolean isNpcIdInList(int npcId)
-	{
-		return showNPCIDs.contains(String.valueOf(npcId));
-	}
-
-	public boolean isNpcIdBlacklisted(NPC npc)
-	{
-		String npcName = npc.getName();
-		if (npcName != null)
-		{
-			int id = npc.getId();
-
-			switch (npcName)
-			{
-				case "Duke Sucellus": // duke sucellus - allow only fight id to be tracked from duke
-					return id != DUKE_SUCELLUS_AWAKE && id != DUKE_SUCELLUS_ASLEEP;
-				case "Vardorvis":
-					return id == VARDORVIS_BASE_POSTQUEST; // Vardorvis outside instance.
-				case "Akkha":
-					return id == AKKHA_SPAWN; // Pre-enter room idle Akkha id 11789
-				case "Muttadile":
-					// On name tagging this is duplicating dogodile junior's hp to submerged version
-					// this is due to name matching, I doubt anybody want submerged version
-					return id == RAIDS_DOGODILE_SUBMERGED;
-				case "Yama":
-					// Blacklist everything but Yama the boss
-					return id != YAMA;
-				default:
-					return false;
-			}
-		}
-
-		return false;
-	}
-
-	private boolean isNpcInList(NPC npc)
-	{
-		if (isNpcIdBlacklisted(npc))
-		{
-			return false;
-		}
-
-		boolean isInList = (isNpcNameInList(npc.getName()) || isNpcIdInList(npc.getId()));
-
-		if (!isInList)
-		{
-			return this.showAllHP && !isNpcNameInShowAllBlacklist(npc.getName());
-		}
-
-		return true;
-	}
-
 	@Subscribe
 	public void onConfigChanged(ConfigChanged configChanged)
 	{
 		if (Objects.equals(configChanged.getGroup(), "MonsterHP") && (Objects.equals(configChanged.getKey(), "npcShowAll") || Objects.equals(configChanged.getKey(), "npcShowAllBlacklist") || Objects.equals(configChanged.getKey(), "npcToShowHp") || Objects.equals(configChanged.getKey(), "npcIdToShowHp")))
 		{
-			showNPCs = getSelectedNpcNames(false);
-			showNPCIDs = getSelectedNpcIds();
-
-			this.showAllHP = config.npcShowAllHP();
-			showNPCBlacklist = getShowAllBlacklistNames();
-
 			clientThread.invokeLater(this::rebuildAllNpcs);
 		}
-
-
-	}
-
-	List<String> getShowAllBlacklistNames()
-	{
-		String configNPCs = config.npcShowAllBlacklist().toLowerCase();
-		return configNPCs.isEmpty() ? Collections.emptyList() : Text.fromCSV(configNPCs);
-	}
-
-	List<String> getSelectedNpcNames(boolean includeDisplaytype)
-	{
-		String configNPCs = config.npcNameShowHP().toLowerCase();
-		if (configNPCs.isEmpty())
-		{
-			return Collections.emptyList();
-		}
-
-		List<String> selectedNpcNamesRaw = Text.fromCSV(configNPCs);
-
-		if (!includeDisplaytype)
-		{
-			List<String> strippedNpcNames = new ArrayList<>(selectedNpcNamesRaw);
-			strippedNpcNames.replaceAll(npcName -> npcName != null && npcName.contains(":") ? npcName.split(":")[0] : npcName);
-
-			return strippedNpcNames;
-		}
-
-		return selectedNpcNamesRaw;
-	}
-
-	@VisibleForTesting
-	List<String> getSelectedNpcIds()
-	{
-		String configNPCIDs = config.npcIDShowHP().toLowerCase();
-		if (configNPCIDs.isEmpty())
-		{
-			return Collections.emptyList();
-		}
-
-		return Text.fromCSV(configNPCIDs);
-	}
-
-	@VisibleForTesting
-	boolean isNpcNumericDefined(NPC npc)
-	{
-		String npcNameTargetLowerCase = Objects.requireNonNull(npc.getName()).toLowerCase();
-
-		for (String npcNameRaw : showNPCsWithTypes)
-		{
-			String npcName = npcNameRaw.contains(":") ? npcNameRaw.split(":")[0] : npcNameRaw;
-			boolean isMatch = WildcardMatcher.matches(npcName, npcNameTargetLowerCase);
-
-			if (npcNameRaw.contains(":n") && isMatch)
-			{
-				return true;
-			}
-		}
-		return false;
 	}
 
 	private void rebuildAllNpcs()
@@ -1321,18 +1145,10 @@ public class BossBuddyPlugin extends Plugin
 
 		for (NPC npc : client.getTopLevelWorldView().npcs())
 		{
-			if (isNpcInList(npc))
-			{
 				BossBuddyNPC bossBuddyNPC = new BossBuddyNPC(npc);
-
-				if (isNpcNumericDefined(npc))
-				{
-					bossBuddyNPC.setIsTypeNumeric(1);
-				}
 
 				bossBuddyNPCs.put(npc.getIndex(), bossBuddyNPC);
 				npcLocations.put(npc.getIndex(), npc.getWorldLocation());
-			}
 		}
 	}
 }

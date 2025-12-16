@@ -22,7 +22,6 @@ import javax.inject.Inject;
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicButtonUI;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -45,7 +44,7 @@ public class BossBuddyPanel extends PluginPanel
 	@Inject
 	private ClientThread clientThread;
 
-	public BossBuddyPanel(BossBuddyPlugin plugin, BossBuddyConfig config, ConfigManager configManager, ItemManager itemManager, Gson gson, ClientThread clientThread, String profileKey)
+	public BossBuddyPanel(BossBuddyPlugin plugin, BossBuddyConfig config, ConfigManager configManager, Gson gson, ClientThread clientThread, String profileKey)
 	{
 		this.plugin = plugin;
 		this.config = config;

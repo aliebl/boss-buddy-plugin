@@ -2,6 +2,8 @@ package com.bossbuddy.gearhelper;
 
 import com.bossbuddy.BossBuddyConfig;
 import com.google.common.collect.ImmutableSet;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.util.HashMap;
 import java.util.Map;
 import static java.util.Map.entry;
@@ -17,10 +19,8 @@ import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.components.ImageComponent;
 import net.runelite.client.ui.overlay.components.ComponentOrientation;
 import javax.inject.Inject;
-import java.awt.*;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.Set;
 
 @Slf4j

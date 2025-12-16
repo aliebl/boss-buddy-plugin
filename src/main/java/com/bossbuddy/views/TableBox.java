@@ -4,15 +4,15 @@ package com.bossbuddy.views;
 import com.bossbuddy.BossBuddyConfig;
 import com.bossbuddy.loot.BossDropItem;
 import com.bossbuddy.loot.BossDropRecord;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.util.ArrayList;
+import javax.swing.border.EmptyBorder;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j

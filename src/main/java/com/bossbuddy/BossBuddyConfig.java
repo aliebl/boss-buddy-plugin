@@ -315,7 +315,6 @@ public interface BossBuddyConfig extends Config
 		return false;
 	}
 
-
 	@ConfigItem(
 		position = 10,
 		keyName = "npcHideFull",
@@ -326,55 +325,6 @@ public interface BossBuddyConfig extends Config
 	default boolean npcHideFull()
 	{
 		return false;
-	}
-
-	@ConfigItem(
-		position = 11,
-		keyName = "npcShowAllHP",
-		name = "Show All",
-		description = "Show for all NPCs",
-		section = hp_settings
-	)
-	default boolean npcShowAllHP()
-	{
-		return false;
-	}
-
-	@ConfigItem(
-		position = 12,
-		keyName = "npcNameShowHP",
-		name = "NPC Names",
-		description = "Names of NPC to show HP Info. Semi Colon Separated with Optional HP Thresholds. Example: Yama,66,33;Araxxor,25",
-		section = hp_settings
-	)
-	default String npcNameShowHP()
-	{
-		return "";
-	}
-
-	@ConfigItem(
-		position = 13,
-		keyName = "npcIDShowHP",
-		name = "NPC Ids",
-		description = "Id of NPCs to show HP Info. Semi Colon Separated with Optional HP Thresholds. Example: Yama,66,33;Araxxor,25",
-		section = hp_settings
-	)
-	default String npcIDShowHP()
-	{
-		return "";
-	}
-
-
-	@ConfigItem(
-		position = 14,
-		keyName = "npcNoShowHP",
-		name = "Show All Blacklist",
-		description = "Name of NPCs to hide Info. Comma Separated.",
-		section = hp_settings
-	)
-	default String npcShowAllBlacklist()
-	{
-		return "";
 	}
 
 	default Color commonColor()

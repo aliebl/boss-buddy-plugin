@@ -1,20 +1,10 @@
 package com.bossbuddy.util;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.function.Consumer;
-
-
-import static com.bossbuddy.util.Icons.noteImg;
 
 public class Util
 {
