@@ -26,15 +26,10 @@ public class TableBox extends JPanel
 	private final String fullHeaderStr;
 	private String headerStr;
 
-	private final JButton collapseBtn = new JButton();
 	private final JPanel listViewContainer = new JPanel();
-	private final JPanel gridViewPanel = new JPanel();
-
 	private final JPanel headerContainer = new JPanel();
 	private final JPanel leftHeader = new JPanel();
-
 	private final Color HEADER_BG_COLOR = ColorScheme.DARKER_GRAY_COLOR.darker();
-
 	private final List<BossDropItemPanel> itemPanels = new ArrayList<>();
 
 	public TableBox(TableResultsPanel tableResultsPanel, BossBuddyConfig config, BossDropRecord bossDropRecord, String headerStr)
@@ -141,31 +136,5 @@ public class TableBox extends JPanel
 
 		listViewContainer.setLayout(new BoxLayout(listViewContainer, BoxLayout.Y_AXIS));
 		add(listViewContainer);
-	}
-
-
-	void collapse()
-	{
-		if (!isCollapsed())
-		{
-			collapseBtn.setSelected(true);
-			listViewContainer.setVisible(false);
-			gridViewPanel.setVisible(false);
-		}
-	}
-
-	void expand()
-	{
-		if (isCollapsed())
-		{
-			collapseBtn.setSelected(false);
-			listViewContainer.setVisible(true);
-			gridViewPanel.setVisible(true);
-		}
-	}
-
-	boolean isCollapsed()
-	{
-		return collapseBtn.isSelected();
 	}
 }

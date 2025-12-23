@@ -69,19 +69,4 @@ public class TableResultsPanel extends JPanel
 		dropTableContent.add(tableBox);
 		dropTableContent.add(Box.createRigidArea(new Dimension(0, 5)));
 	}
-
-	int getSelectedIndex()
-	{
-		return selectedTabIndex;
-	}
-
-	void resetSelectedIndex()
-	{
-		selectedTabIndex = 0;
-	}
-
-	void setSelectedIndex(int index)
-	{
-		selectedTabIndex = index;
-	}
 }

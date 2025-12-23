@@ -26,11 +26,6 @@ public class Util
 		});
 	}
 
-	public static String colorToHex(Color color)
-	{
-		return "#" + Integer.toHexString(color.getRGB()).substring(2);
-	}
-
 	public static String rsFormat(double number)
 	{
 		int power;

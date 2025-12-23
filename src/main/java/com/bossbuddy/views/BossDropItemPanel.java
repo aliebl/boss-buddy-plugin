@@ -6,13 +6,11 @@ import com.bossbuddy.loot.BossDropItem;
 import com.bossbuddy.osrswiki.WikiScraper;
 import com.bossbuddy.util.Util;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.client.config.ConfigManager;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.components.IconTextField;
 import net.runelite.client.util.AsyncBufferedImage;
 import net.runelite.client.util.SwingUtil;
-import javax.inject.Inject;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicButtonUI;
@@ -26,10 +24,6 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 public class BossDropItemPanel extends JPanel
 {
-
-	@Inject
-	private ConfigManager configManager;
-
 	private final TableBox tableBox;
 	private final int itemIndex;
 	private final BossDropItem item;
@@ -103,7 +97,7 @@ public class BossDropItemPanel extends JPanel
 				{
 					Desktop.getDesktop().browse(new URL(wikiUrl).toURI());
 				}
-				catch (Exception e)
+				catch (Exception ignored)
 				{
 				}
 			}

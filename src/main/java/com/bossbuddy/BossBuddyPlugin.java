@@ -5,7 +5,6 @@ import com.bossbuddy.respawn.RespawnOverlay;
 import com.bossbuddy.gearhelper.EquipmentOverlay;
 import com.bossbuddy.loot.BossDropFraction;
 import com.bossbuddy.loot.BossDropItem;
-import com.bossbuddy.osrswiki.DropTableSection;
 import com.bossbuddy.osrswiki.WikiItem;
 import com.bossbuddy.osrswiki.WikiScraper;
 import com.bossbuddy.respawn.RespawnNotification;
@@ -95,7 +94,6 @@ public class BossBuddyPlugin extends Plugin
 	@Inject
 	private Client client;
 
-
 	@Inject
 	private ClientThread clientThread;
 
@@ -153,7 +151,7 @@ public class BossBuddyPlugin extends Plugin
 	);
 
 	private String profileKey;
-	private final Map<Integer, DropTableSection[]> loadedDropTableSections = new HashMap<>();
+	private final Map<Integer, WikiItem[]> loadedWikiItems = new HashMap<>();
 	private final List<NPC> spawnedNpcsThisTick = new ArrayList<>();
 	private final List<NPC> despawnedNpcsThisTick = new ArrayList<>();
 	private WorldPoint lastPlayerLocation;
@@ -169,7 +167,7 @@ public class BossBuddyPlugin extends Plugin
 	private NavigationButton navButton;
 
 	@Override
-	protected void startUp() throws Exception
+	protected void startUp()
 	{
 		profileKey = null;
 
@@ -204,7 +202,7 @@ public class BossBuddyPlugin extends Plugin
 	}
 
 	@Override
-	protected void shutDown() throws Exception
+	protected void shutDown()
 	{
 		clientThread.invoke(() ->
 		{
@@ -236,9 +234,7 @@ public class BossBuddyPlugin extends Plugin
 				}
 
 				SwingUtilities.invokeLater(() ->
-				{
-					panel.profileKey = this.profileKey;
-				});
+					panel.profileKey = this.profileKey);
 
 				return true;
 			});
@@ -356,31 +352,26 @@ public class BossBuddyPlugin extends Plugin
 	public void onMenuOpened(final MenuOpened event)
 	{
 		if (!config.coinSplit())
-		{
 			return;
-		}
 
 		final MenuEntry[] entries = event.getMenuEntries();
 		for (int idx = entries.length - 1; idx >= 0; --idx)
 		{
 			final MenuEntry entry = entries[idx];
 			final Widget w = entry.getWidget();
-
 			if (w != null && WidgetUtil.componentToInterface(w.getId()) == InterfaceID.INVENTORY
 				&& "Examine".equals(entry.getOption()) && entry.getIdentifier() == 10)
 			{
-
 				final int itemId = w.getItemId();
 				final int itemCount = w.getItemQuantity();
 				if (itemId == COINS)
 				{
-
-					MenuEntry splitCoins = client.createMenuEntry(idx)
+					entry
 						.setOption("Split")
 						.setTarget(entry.getTarget())
 						.setType(MenuAction.RUNELITE);
 
-					Menu subLeft = splitCoins.createSubMenu();
+					Menu subLeft = entry.createSubMenu();
 
 					subLeft.createMenuEntry(-1)
 						.setOption("Split 2")
@@ -401,7 +392,6 @@ public class BossBuddyPlugin extends Plugin
 						.setOption("Split 5")
 						.setType(MenuAction.RUNELITE)
 						.onClick(e -> splitCoins(itemCount, 5));
-
 				}
 			}
 		}
@@ -422,7 +412,6 @@ public class BossBuddyPlugin extends Plugin
 				.type(ChatMessageType.CONSOLE)
 				.runeLiteFormattedMessage(chatMessage)
 				.build());
-
 	}
 
 	@Subscribe
@@ -436,7 +425,6 @@ public class BossBuddyPlugin extends Plugin
 			skipNextSpawnCheck = true;
 		}
 	}
-
 
 	private static Collection<ItemStack> stack(Collection<ItemStack> items)
 	{
@@ -463,7 +451,6 @@ public class BossBuddyPlugin extends Plugin
 				list.add(item);
 			}
 		}
-
 		return list;
 	}
 
@@ -496,17 +483,18 @@ public class BossBuddyPlugin extends Plugin
 		for (NPC curNPC : matchingNPC)
 		{
 			lastNPC = curNPC;
-			if (!loadedDropTableSections.isEmpty() && loadedDropTableSections.containsKey(curNPC.getId()))
+
+			if (!loadedWikiItems.isEmpty() && loadedWikiItems.containsKey(curNPC.getId()))
 			{
 				log.debug("Drop table already loaded");
 			}
 			else
 			{
-				WikiScraper.getDropsByMonster(okHttpClient, curNPC.getName(), curNPC.getId()).whenCompleteAsync((dropTableSections, ex) -> {
+				WikiScraper.getWikiItemsByMonster(okHttpClient, curNPC.getName(), curNPC.getId()).whenCompleteAsync((wikiItems, ex) -> {
 					DecimalFormat df = new DecimalFormat("#.####");
 					df.setRoundingMode(RoundingMode.CEILING);
 
-					loadedDropTableSections.put(curNPC.getId(), dropTableSections);
+					loadedWikiItems.put(curNPC.getId(), wikiItems);
 				});
 			}
 		}
@@ -635,98 +623,85 @@ public class BossBuddyPlugin extends Plugin
 			npcId = -1;
 		}
 
-		if (!loadedDropTableSections.isEmpty() && loadedDropTableSections.containsKey(npcId))
+		if (!loadedWikiItems.isEmpty() && loadedWikiItems.containsKey(npcId))
 		{
-			log.debug("Drop Table already loaded");
+			log.debug("Drop table already loaded");
 		}
 		else
 		{
 			int finalNpcId = npcId;
-			WikiScraper.getDropsByMonster(okHttpClient, npcName, npcId).whenCompleteAsync((dropTableSections, ex) -> {
+			WikiScraper.getWikiItemsByMonster(okHttpClient, npcName, npcId).whenCompleteAsync((wikiItems, ex) -> {
 				DecimalFormat df = new DecimalFormat("#.####");
 				df.setRoundingMode(RoundingMode.CEILING);
 
-				loadedDropTableSections.put(finalNpcId, dropTableSections);
+				loadedWikiItems.put(finalNpcId, wikiItems);
 			});
 		}
 
-		DropTableSection[] dropTableSections = loadedDropTableSections.get(npcId);
-		if (dropTableSections == null)
-		{
+		WikiItem[] wikiItems = loadedWikiItems.get(npcId);
+		if (wikiItems == null)
 			return;
-		}
 
-		boolean foundDrop = false;
 		Map<String, Integer> commonDrops = new HashMap<>();
-		for (DropTableSection section : dropTableSections)
+
+		for(WikiItem wItem: wikiItems)
 		{
-			Map<String, WikiItem[]> dropTables = section.getTable();
+			String dropItemName = item.getName();
+			int dropItemQuant = item.getQuantity();
 
-			for (Map.Entry<String, WikiItem[]> wikiEntry : dropTables.entrySet())
+			if (commonDrops.containsKey(dropItemName) && commonDrops.get(dropItemName) == dropItemQuant)
 			{
+				log.info("Most likely rare drop that is under report rate");
+				continue;
+			}
 
-				WikiItem[] wikiItems = wikiEntry.getValue();
+			WikiItem wikiItem = null;
+			if(Objects.equals(wItem.getName(), dropItemName) && wItem.quantityMatch(dropItemQuant))
+				wikiItem = wItem;
 
-				String dropItemName = item.getName();
-				int dropItemQuant = item.getQuantity();
-
-				if (commonDrops.containsKey(dropItemName) && commonDrops.get(dropItemName) == dropItemQuant)
+			if (wikiItem != null)
+			{
+				String itemRarity = wikiItem.getRarityLabelText(false);
+				if (Objects.equals(itemRarity, "Always") || Objects.equals(wikiItem.getName(), "Coins"))
 				{
-					log.info("Most likely rare drop that is under report rate");
 					continue;
 				}
 
-				WikiItem wikiItem = Arrays.stream(wikiItems).filter(k -> Objects.equals(k.getName(), dropItemName) && k.quantityMatch(dropItemQuant)).findFirst().orElse(null);
-				if (wikiItem != null)
+				if (itemRarity.contains(";"))
 				{
-
-					String itemRarity = wikiItem.getRarityLabelText(false);
-					if (Objects.equals(itemRarity, "Always") || Objects.equals(wikiItem.getName(), "Coins"))
-					{
-						continue;
-					}
-
-					if (itemRarity.contains(";"))
-					{
-						itemRarity = Arrays.stream(itemRarity.split(";")).findFirst().get();
-					}
-
-					BossDropFraction itemRarityFraction = BossDropFraction.parseFraction(itemRarity);
-					BossDropFraction rarityLimitFraction = BossDropFraction.parseFraction(config.dropRarityLimit());
-					int fractionCompare = itemRarityFraction.compareTo(rarityLimitFraction);
-
-					if (fractionCompare > 0)
-					{
-						commonDrops.put(dropItemName, dropItemQuant);
-						continue;
-					}
-
-					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-					String formattedDate = sdf.format(new Date());
-
-					String chatMessageString = String.format("Item: %s - Rarity: %s", item.getName(), itemRarity);
-					if (config.displayDate())
-					{
-						chatMessageString = String.format("%s - Date: %s", chatMessageString, formattedDate);
-					}
-
-					String chatMessage = new ChatMessageBuilder()
-						.append(ChatColorType.HIGHLIGHT)
-						.append(chatMessageString)
-						.build();
-
-					chatMessageManager.queue(
-						QueuedMessage.builder()
-							.type(ChatMessageType.CONSOLE)
-							.runeLiteFormattedMessage(chatMessage)
-							.build());
-					foundDrop = true;
-					break;
+					itemRarity = Arrays.stream(itemRarity.split(";")).findFirst().get();
 				}
-				if (foundDrop)
+
+				BossDropFraction itemRarityFraction = BossDropFraction.parseFraction(itemRarity);
+				BossDropFraction rarityLimitFraction = BossDropFraction.parseFraction(config.dropRarityLimit());
+				int fractionCompare = itemRarityFraction.compareTo(rarityLimitFraction);
+
+				if (fractionCompare > 0)
 				{
-					break;
+					commonDrops.put(dropItemName, dropItemQuant);
+					continue;
 				}
+
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				String formattedDate = sdf.format(new Date());
+
+				String chatMessageString = String.format("Item: %s - Rarity: %s", item.getName(), itemRarity);
+				if (config.displayDate())
+				{
+					chatMessageString = String.format("%s - Date: %s", chatMessageString, formattedDate);
+				}
+
+				String chatMessage = new ChatMessageBuilder()
+					.append(ChatColorType.HIGHLIGHT)
+					.append(chatMessageString)
+					.build();
+
+				chatMessageManager.queue(
+					QueuedMessage.builder()
+						.type(ChatMessageType.CONSOLE)
+						.runeLiteFormattedMessage(chatMessage)
+						.build());
+				break;
 			}
 		}
 	}
@@ -818,7 +793,6 @@ public class BossBuddyPlugin extends Plugin
 			buildPanelItems(lootConfig);
 		}
 	}
-
 
 	private BossDropItem[] buildEntries(final Collection<ItemStack> itemStacks, int killCount, int date)
 	{

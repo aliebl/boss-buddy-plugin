@@ -18,8 +18,6 @@ def runeLiteVersion = 'latest.release'
 dependencies {
 	compileOnly 'net.runelite:client:'+ runeLiteVersion
 
-    implementation "org.jsoup:jsoup:1.13.1"
-
     compileOnly 'org.projectlombok:lombok:1.18.30'
 	annotationProcessor 'org.projectlombok:lombok:1.18.30'
 

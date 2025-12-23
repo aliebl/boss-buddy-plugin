@@ -5,11 +5,11 @@ So I decided to make a plugin to add what I thought was missing and bundle them 
 
 Inspiration/examples I used:  
 
-Worn Equipment Viewer Plugin - iGundamStyle,JZomDev  
-Better NPC Highlight Plugin - Buchus  
-Monster HP Percentage Plugin - Le Jeffe   
-Runelite Bank Plugin  
-Runelite Loot Tracker Plugin  
+Worn Equip Viewer Plugin (https://github.com/iGundamStyle/WornEquipViewer) - Copyright 2023 iGundamStyle
+Better NPC Highlight Plugin (https://github.com/MoreBuchus/buchus-plugins/tree/better-npc-highlight) - Copyright (c) 2022, Buchus <http://github.com/MoreBuchus>  
+Monster HP Percentage Plugin (https://github.com/lejeffe/MonsterHP/tree/master) - Copyright (c) 2022, Le Jeffe  
+Runelite Bank Plugin (https://github.com/runelite/runelite/tree/master/runelite-client/src/main/java/net/runelite/client/plugins/bank) - Copyright (c) 2016-2017, Adam <Adam@sigterm.info>
+Runelite Loot Tracker Plugin (https://github.com/runelite/runelite/tree/master/runelite-client/src/main/java/net/runelite/client/plugins/loottracker) - Copyright (c) 2016-2017, Adam <Adam@sigterm.info>
 
 <h1>Boss Buddy Plugin</h1>
 Track Drops/Monster Information/Gearing Assistance

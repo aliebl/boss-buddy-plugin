@@ -246,7 +246,6 @@ public class HPOverlay extends Overlay
 		graphics.drawString(text, textLoc.getX() + offsetShadow, textLoc.getY() + offsetShadow);
 		graphics.setColor(color);
 		graphics.drawString(text, textLoc.getX(), textLoc.getY());
-
 	}
 
 	private void updateFont()

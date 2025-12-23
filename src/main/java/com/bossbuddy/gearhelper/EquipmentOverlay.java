@@ -26,10 +26,8 @@ import java.util.Set;
 @Slf4j
 public class EquipmentOverlay extends OverlayPanel
 {
-	private static final int PLACEHOLDER_WIDTH = 36;
 	private static final int PLACEHOLDER_WIDTH_150_PERCENT = 57;
 	private static final int PLACEHOLDER_HEIGHT = 32;
-	private static final ImageComponent PLACEHOLDER_IMAGE = new ImageComponent(new BufferedImage(PLACEHOLDER_WIDTH, PLACEHOLDER_HEIGHT, BufferedImage.TYPE_4BYTE_ABGR));
 	private final ItemManager itemManager;
 	private final Client client;
 	private final BossBuddyConfig bossBuddyConfig;
