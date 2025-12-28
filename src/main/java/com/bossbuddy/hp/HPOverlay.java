@@ -88,22 +88,25 @@ public class HPOverlay extends Overlay
 
 		if (Boss.isNpcBoss(npc))
 		{
-			maxHealth = client.getVarbitValue(HPBAR_HUD_BASEHP);
-
-			if (npc.getId() == OLM_HEAD && isCoxOlmHandsAlive())
+			Boss boss = Boss.find(npc.getId());
+			if (boss.isIgnoreMaxHp())
 			{
-				return;
+				maxHealth = client.getVarbitValue(HPBAR_HUD_BASEHP);
+
+				if (npc.getId() == OLM_HEAD && isCoxOlmHandsAlive())
+				{
+					return;
+				}
 			}
-
-			if (maxHealth <= 0)
+			else if (boss.getMaxHp() != -1)
 			{
-				return;
+				maxHealth = boss.getMaxHp();
 			}
 		}
 
 		if (bossBuddyConfig.hpValue() || bossBuddyNPC.getIsTypeNumeric() == 1)
 		{
-			if (maxHealth != null)
+			if (maxHealth != null && maxHealth != 0)
 			{
 				double numericHealth = (int) Math.floor((wNpcHealthRatio / 100) * maxHealth);
 				bossBuddyNPC.setCurrentHp(numericHealth);
@@ -219,7 +222,12 @@ public class HPOverlay extends Overlay
 
 			if (Boss.isNpcBoss(npc))
 			{
-				final int curHp = client.getVarbitValue(HPBAR_HUD_HP);
+				int curHp = client.getVarbitValue(HPBAR_HUD_HP);
+				Boss boss = Boss.find(npc.getId());
+				if(!boss.isIgnoreMaxHp())
+				{
+					curHp = (int) bossBuddyNPC.getCurrentHp();
+				}
 				return usePercentage ? healthRatio : String.valueOf(curHp);
 			}
 

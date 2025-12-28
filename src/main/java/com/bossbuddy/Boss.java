@@ -26,7 +26,7 @@ public enum Boss
 	CHAOS_ELEMENTAL(NpcID.CHAOSELEMENTAL, 14, RSTimeUnit.GAME_TICKS, ItemID.CHAOSELEPET),
 	CHAOS_FANATIC(NpcID.CHAOS_FANATIC, 14, RSTimeUnit.GAME_TICKS, ItemID.STAFF_OF_ZAROS),
 	CRAZY_ARCHAEOLOGIST(NpcID.CRAZY_ARCHAEOLOGIST, 9, ChronoUnit.SECONDS, ItemID.FEDORA),
-	KING_BLACK_DRAGON(NpcID.KING_DRAGON, 9, ChronoUnit.SECONDS, ItemID.KBDPET),
+	KING_BLACK_DRAGON(NpcID.KING_DRAGON, 9, ChronoUnit.SECONDS, ItemID.KBDPET, 240),
 	SCORPIA(NpcID.SCORPIA, 14, RSTimeUnit.GAME_TICKS, ItemID.SCORPIA_PET),
 	SCURRIUS(NpcID.RAT_BOSS_NORMAL, 29, RSTimeUnit.GAME_TICKS, ItemID.SCURRIUSPET),
 	SCURRIUS_PRIVATE(NpcID.RAT_BOSS_INSTANCE, 29, RSTimeUnit.GAME_TICKS, ItemID.SCURRIUSPET),
@@ -38,21 +38,23 @@ public enum Boss
 	DAGANNOTH_REX(NpcID.DAGCAVE_MELEE_BOSS, 90, ChronoUnit.SECONDS, ItemID.REXPET),
 	DAGANNOTH_SUPREME(NpcID.DAGCAVE_RANGED_BOSS, 90, ChronoUnit.SECONDS, ItemID.SUPREMEPET),
 	CORPOREAL_BEAST(NpcID.CORP_BEAST, 30, ChronoUnit.SECONDS, ItemID.COREPET),
-	GIANT_MOLE(NpcID.MOLE_GIANT, 9000, ChronoUnit.MILLIS, ItemID.MOLEPET),
+	GIANT_MOLE(NpcID.MOLE_GIANT, 9000, ChronoUnit.MILLIS, ItemID.MOLEPET, 200),
 	DERANGED_ARCHAEOLOGIST(NpcID.FOSSIL_CRAZY_ARCHAEOLOGIST, 29400, ChronoUnit.MILLIS, ItemID.FOSSIL_LARGE_UNID),
 	CERBERUS(NpcID.CERBERUS_ATTACKING, 8400, ChronoUnit.MILLIS, ItemID.HELL_PET),
 	THERMONUCLEAR_SMOKE_DEVIL(NpcID.SMOKE_DEVIL_BOSS, 8400, ChronoUnit.MILLIS, ItemID.SMOKEPET),
 	KRAKEN(NpcID.SLAYER_KRAKEN_BOSS, 8400, ChronoUnit.MILLIS, ItemID.KRAKENPET),
 	KALPHITE_QUEEN(NpcID.KALPHITE_FLYINGQUEEN, 30, ChronoUnit.SECONDS, ItemID.KQPET_WALKING),
-	DUSK(NpcID.GARGBOSS_DUSK_DEATH, 5, ChronoUnit.MINUTES, ItemID.DAWNPET, false, true),
+	DUSK(NpcID.GARGBOSS_DUSK_DEATH, 5, ChronoUnit.MINUTES, ItemID.DAWNPET, false, true, true,-1),
 	ALCHEMICAL_HYDRA(NpcID.HYDRABOSS_FINALDEATH, 25200, ChronoUnit.MILLIS, ItemID.HYDRAPET),
 	SARACHNIS(NpcID.SARACHNIS, 16, RSTimeUnit.GAME_TICKS, ItemID.SARACHNISPET),
 	ZALCANO(NpcID.ZALCANO_WEAK, 21600, ChronoUnit.MILLIS, ItemID.ZALCANOPET),
 	PHANTOM_MUSPAH(NpcID.MUSPAH_FINAL, 50, RSTimeUnit.GAME_TICKS, ItemID.MUSPAHPET),
 	THE_LEVIATHAN(NpcID.LEVIATHAN, 30, RSTimeUnit.GAME_TICKS, ItemID.LEVIATHANPET),
-	ARAXXOR(NpcID.ARAXXOR_DEAD, 15, RSTimeUnit.GAME_TICKS, ItemID.ARAXXORPET, true, true),
+	ARAXXOR(NpcID.ARAXXOR_DEAD, 15, RSTimeUnit.GAME_TICKS, ItemID.ARAXXORPET, true, false, false, 1020),
+	ARAXXOR_ALIVE(NpcID.ARAXXOR, 15, RSTimeUnit.GAME_TICKS, ItemID.ARAXXORPET, true, true, false, 1020),
 	AMOXLIATL(NpcID.AMOXLIATL, 28, RSTimeUnit.GAME_TICKS, ItemID.AMOXLIATLPET),
 	HUEYCOATL(NpcID.HUEY_HEAD_DEFEATED, 50, RSTimeUnit.GAME_TICKS, ItemID.HUEYPET),
+	YAMA(NpcID.YAMA,15,RSTimeUnit.GAME_TICKS, ItemID.YAMAPET, true,true,false,2500)
 	;
 
 	private static final Map<Integer, Boss> bosses;
@@ -61,6 +63,8 @@ public enum Boss
 	private final int itemSpriteId;
 	private final boolean ignoreDead;
 	private final boolean ignoreAlarm;
+	private final boolean ignoreMaxHp;
+	private final int maxHp;
 
 	static
 	{
@@ -76,16 +80,23 @@ public enum Boss
 
 	Boss(int id, long period, TemporalUnit unit, int itemSpriteId)
 	{
-		this(id, period, unit, itemSpriteId, false, false);
+		this(id, period, unit, itemSpriteId, false, false, true, 0);
 	}
 
-	Boss(int id, long period, TemporalUnit unit, int itemSpriteId, boolean ignoreDead, boolean ignoreAlarm)
+	Boss(int id, long period, TemporalUnit unit, int itemSpriteId, int maxHp)
+	{
+		this(id, period, unit, itemSpriteId, false, false, false, maxHp);
+	}
+
+	Boss(int id, long period, TemporalUnit unit, int itemSpriteId, boolean ignoreDead, boolean ignoreAlarm, boolean ignoreMaxHp, int maxHp)
 	{
 		this.id = id;
 		this.spawnTime = Duration.of(period, unit);
 		this.itemSpriteId = itemSpriteId;
 		this.ignoreDead = ignoreDead;
 		this.ignoreAlarm = ignoreAlarm;
+		this.ignoreMaxHp = ignoreMaxHp;
+		this.maxHp = maxHp;
 	}
 
 	// Tombs of Amascut - String identification seems like the way to identify these bosses (with blacklist control)
@@ -115,7 +126,6 @@ public enum Boss
 
 	// Generic bosses - bosses that does not have a specific section
 	private static final ImmutableSet<Integer> GEN_BOSS_IDS = ImmutableSet.of(
-		YAMA
 	);
 
 	// Doom of Mokhaiotl

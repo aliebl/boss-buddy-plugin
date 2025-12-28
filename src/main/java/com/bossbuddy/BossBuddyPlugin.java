@@ -212,6 +212,7 @@ public class BossBuddyPlugin extends Plugin
 		});
 		overlayManager.remove(hpOverlay);
 		overlayManager.remove(respawnOverlay);
+		overlayManager.remove(equipmentOverlay);
 		npcLocations.clear();
 		bossBuddyNPCs.clear();
 		clientToolbar.removeNavigation(navButton);
@@ -566,31 +567,42 @@ public class BossBuddyPlugin extends Plugin
 
 	private void updateBossBuddyNPCProperties(NPC npc, BossBuddyNPC bossBuddyNPC, Map<WorldPoint, Integer> locationCount)
 	{
-		double monsterHp = ((double) npc.getHealthRatio() / (double) npc.getHealthScale() * 100);
+		double monsterHpRatio = ((double) npc.getHealthRatio() / (double) npc.getHealthScale() * 100);
+		double monsterHp = 0;
 
 		boolean isBoss = Boss.isNpcBoss(npc);
 		if (isBoss)
 		{
-			final int curHp = client.getVarbitValue(HPBAR_HUD_HP);
-			final int maxHp = client.getVarbitValue(HPBAR_HUD_BASEHP);
+			Boss boss = Boss.find(npc.getId());
+			int curHp = client.getVarbitValue(HPBAR_HUD_HP);
+			int maxHp = client.getVarbitValue(HPBAR_HUD_BASEHP);
+
+			if(!boss.isIgnoreMaxHp())
+			{
+				maxHp = boss.getMaxHp();
+				curHp = (int) (maxHp * ((double) npc.getHealthRatio() / (double) npc.getHealthScale()));
+				monsterHp = curHp;
+			}
+
 			if (maxHp > 0 && curHp >= 0)
 			{
 				double hpVarbitRatio = 100.0 * curHp / maxHp;
 				if (hpVarbitRatio > 0)
 				{
-					monsterHp = hpVarbitRatio;
+					monsterHpRatio = hpVarbitRatio;
 				}
 			}
-			else
-			{
-				return;
-			}
+			//else
+			//{
+			//	return;
+			//}
 		}
 		boolean isDoomBoss = Boss.DOOM_BOSS_IDS.contains(npc.getId());
 
 		if (!npc.isDead() && ((npc.getHealthRatio() / npc.getHealthScale() != 1) || isDoomBoss))
 		{
-			bossBuddyNPC.setHealthRatio(monsterHp);
+			bossBuddyNPC.setHealthRatio(monsterHpRatio);
+			bossBuddyNPC.setCurrentHp(monsterHp);
 			bossBuddyNPC.setCurrentLocation(npc.getWorldLocation());
 			bossBuddyNPC.setDead(false);
 
