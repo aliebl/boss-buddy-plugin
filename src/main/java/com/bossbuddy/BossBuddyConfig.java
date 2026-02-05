@@ -157,14 +157,38 @@ public interface BossBuddyConfig extends Config
 
 	@ConfigItem(
 		keyName = "npcRespawnLocation",
-		name = "NPC Respawn Location",
-		description = "Enable NPC respawn location tile",
+		name = "Respawn Location",
+		description = "Enable respawn location tile",
 		position = 4,
 		section = notification_settings
 	)
 	default boolean npcRespawnLocation()
 	{
 		return true;
+	}
+
+	@ConfigItem(
+		keyName = "persistRespawnLocations",
+		name = "Persist Respawn Location",
+		description = "Display respawn tiles after spawn",
+		position = 5,
+		section = notification_settings
+	)
+	default boolean persistRespawnLocations()
+	{
+		return false;
+	}
+
+	@ConfigItem(
+		keyName = "notificationTimer",
+		name = "Notification Timer",
+		description = "Number of seconds before respawn",
+		position = 6,
+		section = notification_settings
+	)
+	default int notificationTimer()
+	{
+		return 5;
 	}
 
 	@ConfigItem(

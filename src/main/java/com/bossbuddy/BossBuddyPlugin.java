@@ -352,17 +352,24 @@ public class BossBuddyPlugin extends Plugin
 	@Subscribe
 	public void onMenuOpened(final MenuOpened event)
 	{
-		if (!config.coinSplit())
-			return;
-
+		final var npcs = client.getTopLevelWorldView().npcs();
 		final MenuEntry[] entries = event.getMenuEntries();
-		for (int idx = entries.length - 1; idx >= 0; --idx)
-		{
-			final MenuEntry entry = entries[idx];
+
+		boolean isTargetAttackableNPC = false;
+		String targetMonsterName = "";
+		int combatLevel = 0;
+
+		for (MenuEntry entry : entries) {
+			MenuAction menuType = entry.getType();
+
 			final Widget w = entry.getWidget();
+
 			if (w != null && WidgetUtil.componentToInterface(w.getId()) == InterfaceID.INVENTORY
 				&& "Examine".equals(entry.getOption()) && entry.getIdentifier() == 10)
 			{
+				if (!config.coinSplit())
+					return;
+
 				final int itemId = w.getItemId();
 				final int itemCount = w.getItemQuantity();
 				if (itemId == COINS)
@@ -393,6 +400,44 @@ public class BossBuddyPlugin extends Plugin
 						.setOption("Split 5")
 						.setType(MenuAction.RUNELITE)
 						.onClick(e -> splitCoins(itemCount, 5));
+
+					return;
+				}
+			}
+
+			if (menuType == MenuAction.EXAMINE_NPC || menuType == MenuAction.NPC_SECOND_OPTION || menuType == MenuAction.NPC_FIFTH_OPTION) {
+				String optionText = entry.getOption();
+				int id = entry.getIdentifier();
+
+				NPC target;
+				try {
+					target = npcs.byIndex(id);
+				} catch (ArrayIndexOutOfBoundsException ignored) {
+					continue;
+				}
+
+				if (target != null) {
+					combatLevel = target.getCombatLevel();
+
+					if (optionText.equals("Attack") && combatLevel > 0) {
+						isTargetAttackableNPC = true;
+						targetMonsterName = target.getName();
+					}
+				}
+			}
+		}
+
+		if (isTargetAttackableNPC) {
+			for (MenuEntry entry : entries)
+			{
+				MenuAction menuType = entry.getType();
+				if (menuType == MenuAction.EXAMINE_NPC)
+				{
+					String finalTargetMonsterName1 = targetMonsterName;
+					entry.onClick(e -> {
+					assert finalTargetMonsterName1 != null;
+					panel.searchForMonsterName(finalTargetMonsterName1);
+				});
 				}
 			}
 		}
@@ -737,6 +782,16 @@ public class BossBuddyPlugin extends Plugin
 
 	private int getKc(String npcName)
 	{
+		int killCount = 0;
+		String bossBuddyJson = configManager.getConfiguration(BossBuddyConfig.GROUP, profileKey, "BOSS_BUDDY_NPC_" + npcName.toUpperCase());
+		if (bossBuddyJson != null)
+		{
+			ConfigLoot savedConfig = gson.fromJson(bossBuddyJson, ConfigLoot.class);
+			killCount = savedConfig.kills;
+		}
+		return killCount + 1;
+
+		/*
 		Integer killCount = configManager.getRSProfileConfiguration("killcount", npcName.toLowerCase(), int.class);
 		if (killCount == null)
 		{
@@ -771,6 +826,8 @@ public class BossBuddyPlugin extends Plugin
 			}
 		}
 		return killCount + 1;
+		*/
+
 	}
 
 	void addLoot(NPCComposition npc, Collection<ItemStack> items, int killCount)
@@ -802,7 +859,10 @@ public class BossBuddyPlugin extends Plugin
 			}
 
 			setLootConfig(lootConfig.name, lootConfig);
-			buildPanelItems(lootConfig);
+			if(Objects.equals(npc.getName().toLowerCase(), panel.monsterSearchString.toLowerCase()) || Objects.equals(panel.monsterSearchString, ""))
+			{
+				buildPanelItems(lootConfig);
+			}
 		}
 	}
 
@@ -961,7 +1021,7 @@ public class BossBuddyPlugin extends Plugin
 						t.cancel();
 					}
 				},
-				timer.getDuration().minusSeconds(5).toMillis()
+				timer.getDuration().minusSeconds(config.notificationTimer()).toMillis()
 			);
 		}
 	}
@@ -1087,6 +1147,17 @@ public class BossBuddyPlugin extends Plugin
 		setLootConfig(lootConfig.getName(), lootConfig);
 		buildPanelItems(lootConfig);
 
+	}
+
+	public void clearRecords(String monsterName)
+	{
+		ConfigLoot lootConfig = getLootConfig(monsterName);
+		int[] newArray = new int[0];
+		lootConfig.setDrops(newArray);
+		lootConfig.setKills(0);
+		lootConfig.setLastDropKC(0);
+		setLootConfig(lootConfig.getName(), lootConfig);
+		buildPanelItems(lootConfig);
 	}
 
 	public void removeLoot(String monsterName, int indexToRemove, boolean removeAll)

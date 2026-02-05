@@ -103,7 +103,7 @@ public class EquipmentOverlay extends OverlayPanel
 		Map<Integer, Integer> equipmentMap = Map.ofEntries(
 			entry(14, 0), //NULL
 			entry(0, 1), //Head
-			entry(6, 2), //NULL
+			entry(6, 11), //NULL
 			entry(1, 3), //Cape
 			entry(2, 4), //Amulet
 			entry(13, 5), //Ammo
@@ -112,7 +112,7 @@ public class EquipmentOverlay extends OverlayPanel
 			entry(5, 8), //Shield
 			entry(8, 9), //NULL
 			entry(7, 10), //Legs
-			entry(11, 11), //Quiver Ammo
+			entry(11, 2), //Quiver Ammo
 			entry(9, 12), //Gloves
 			entry(10, 13), //Boots
 			entry(12, 14) //Ring

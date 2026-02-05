@@ -57,7 +57,7 @@ public class RespawnOverlay extends Overlay
 		for (Integer npcIndex : this.bossBuddyNPCs.keySet())
 		{
 			BossBuddyNPC bossBuddyNPC = this.bossBuddyNPCs.get(npcIndex);
-			if (!bossBuddyNPC.isDead())
+			if (!bossBuddyNPC.isDead() && !config.persistRespawnLocations())
 			{
 				continue;
 			}
@@ -73,10 +73,14 @@ public class RespawnOverlay extends Overlay
 				final double baseTick = (bossBuddyNPC.getRespawnTime() - (client.getTickCount() - bossBuddyNPC.getDiedOnTick())) * (Constants.GAME_TICK_LENGTH / 1000.0);
 				final double sinceLast = (now.toEpochMilli() - plugin.lastTickUpdate.toEpochMilli()) / 1000.0;
 				final double timeLeft = Math.max(0, baseTick - sinceLast);
-				if (timeLeft ==0)
+				if (timeLeft == 0 && !config.persistRespawnLocations())
 					continue;
 
 				text = String.valueOf(timeLeft);
+				if(timeLeft == 0){
+					text = bossBuddyNPC.getNpcName();
+				}
+
 				if (text.contains("."))
 				{
 					text = text.substring(0, text.indexOf(".") + 2);

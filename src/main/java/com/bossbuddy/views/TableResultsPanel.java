@@ -16,10 +16,7 @@ public class TableResultsPanel extends JPanel
 	private final BossDropItem[] bossDropItems;
 	private final BossDropRecord bossDropRecord;
 	private final BossBuddyPanel bossBuddyPanel;
-
 	private final List<TableBox> boxes = new ArrayList<>();
-	private int selectedTabIndex;
-
 	private final JPanel dropTableContent = new JPanel();
 
 	public TableResultsPanel(BossBuddyPanel bossBuddyPanel, BossBuddyConfig config, BossDropRecord bossDropRecord)
@@ -43,6 +40,10 @@ public class TableResultsPanel extends JPanel
 	void removeRecord(int itemIndex)
 	{
 		bossBuddyPanel.removeRecord(itemIndex);
+	}
+
+	void clearRecords(){
+		bossBuddyPanel.clearRecords();
 	}
 
 	void buildDropTableContent()

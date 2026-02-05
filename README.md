@@ -30,6 +30,7 @@ Overlay to display currently equipped items while using the Bank interface to he
 
 <h1>Loot Settings</h1>
 Display Wiki drop rate data/Track drop kill count, date, GE value at the time of drop.
+Examine monster to lookup its drops.
 
 ![img_8.png](img_8.png)
 
@@ -38,20 +39,22 @@ Set minimum drop rate that you would like to see displayed in the chat.
 ![img_6.png](img_6.png)
 
 Set minimum GE value of drops that you would like to track in the side panel.
+Examine a monster to pull up its tracked drops.
+Ability to clear KC/Tracked drops with a button click.
 
-![img_7.png](img_7.png)
+![img_16.png](img_16.png)
 
 <h1>Notification Settings</h1>
 Enable respawn timer/location/notification for bosses and/or rank and file NPCs.
 
-![img_11.png](img_11.png)
+![img_15.png](img_15.png)
 
 ![img_13.png](img_13.png)
 
 <h1>HP Settings</h1>
 Customizable overlay to display NPC HP information.
 
-![img_9.png](img_9.png)
+![img_14.png](img_14.png)
 
 ![img_10.png](img_10.png)
 

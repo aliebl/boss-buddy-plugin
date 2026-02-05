@@ -4,16 +4,19 @@ package com.bossbuddy.views;
 import com.bossbuddy.BossBuddyConfig;
 import com.bossbuddy.loot.BossDropItem;
 import com.bossbuddy.loot.BossDropRecord;
+import com.bossbuddy.util.Util;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.basic.BasicButtonUI;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
 import javax.swing.*;
 import java.util.List;
+import net.runelite.client.util.SwingUtil;
 
 @Slf4j
 public class TableBox extends JPanel
@@ -29,6 +32,7 @@ public class TableBox extends JPanel
 	private final JPanel listViewContainer = new JPanel();
 	private final JPanel headerContainer = new JPanel();
 	private final JPanel leftHeader = new JPanel();
+	private final JPanel removeHeader = new JPanel();
 	private final Color HEADER_BG_COLOR = ColorScheme.DARKER_GRAY_COLOR.darker();
 	private final List<BossDropItemPanel> itemPanels = new ArrayList<>();
 
@@ -54,6 +58,7 @@ public class TableBox extends JPanel
 	void buildHeader()
 	{
 		buildLeftHeader();
+		buildRemoveHeader();
 		buildHeaderContainer();
 	}
 
@@ -95,11 +100,43 @@ public class TableBox extends JPanel
 
 	}
 
+	void buildRemoveHeader()
+	{
+		JButton deleteBtn = new JButton();
+		SwingUtil.removeButtonDecorations(deleteBtn);
+		deleteBtn.setText("Clear Tracker");
+		deleteBtn.setBackground(ColorScheme.DARKER_GRAY_COLOR);
+		deleteBtn.setUI(new BasicButtonUI());
+		deleteBtn.setToolTipText("Remove all loot records");
+		deleteBtn.setPreferredSize(new Dimension(60, 20));
+		Util.showHandCursorOnHover(deleteBtn);
+		deleteBtn.addActionListener((evt) -> {
+			/*int i = 0;
+			for (BossDropItem item : items)
+			{
+				removeRecord(i);
+				i++;
+			}
+			*/
+			tableResultsPanel.clearRecords();
+
+		});
+		deleteBtn.setLayout(new BorderLayout());
+
+		removeHeader.setLayout(new BoxLayout(removeHeader, BoxLayout.X_AXIS));
+		removeHeader.setBackground(HEADER_BG_COLOR);
+		removeHeader.setBorder(new EmptyBorder(7, 7, 7, 7));
+
+		removeHeader.add(Box.createRigidArea(new Dimension(10, 0)));
+		removeHeader.add(deleteBtn);
+	}
+
 	void buildHeaderContainer()
 	{
-		headerContainer.setLayout(new BorderLayout());
+		headerContainer.setLayout(new BoxLayout(headerContainer, BoxLayout.Y_AXIS));
+		//headerContainer.setLayout(new BorderLayout());
 		headerContainer.setBackground(HEADER_BG_COLOR);
-		headerContainer.setPreferredSize(new Dimension(0, 30));
+		headerContainer.setPreferredSize(new Dimension(0, 60));
 
 		if (headerStr.endsWith("…"))
 		{
@@ -107,7 +144,8 @@ public class TableBox extends JPanel
 			headerContainer.setToolTipText(fullHeaderStr + " - " + bossDropRecord.GEPriceTotalFormatted());
 		}
 
-		headerContainer.add(leftHeader, BorderLayout.NORTH);
+		headerContainer.add(leftHeader);
+		headerContainer.add(removeHeader);
 		add(headerContainer);
 
 	}

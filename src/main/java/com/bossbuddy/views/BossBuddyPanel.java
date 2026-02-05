@@ -33,10 +33,11 @@ public class BossBuddyPanel extends PluginPanel
 	private ConfigLoot configLoot = null;
 	private final BossBuddyConfig config;
 	private BossDropRecord bossDropRecord;
-	private final IconTextField monsterSearchField = new IconTextField();
+	public IconTextField monsterSearchField = new IconTextField();
 	private final JPanel mainPanel = new JPanel();
 	private final PluginErrorPanel errorPanel = new PluginErrorPanel();
 	private String panelMonsterName = "";
+	public String monsterSearchString = "";
 	public String profileKey = null;
 	private ConfigManager configManager = null;
 	private BossBuddyPlugin plugin = null;
@@ -108,6 +109,10 @@ public class BossBuddyPanel extends PluginPanel
 		//plugin.removeRecord(itemIndex);
 	}
 
+	void clearRecords(){
+		clientThread.invokeLater(() -> plugin.clearRecords(panelMonsterName));
+	}
+
 	public void setLootConfig(String name, ConfigLoot loot)
 	{
 		String profile = profileKey;
@@ -169,13 +174,14 @@ public class BossBuddyPanel extends PluginPanel
 			});
 	}
 
-	void searchForMonsterName(String monsterName)
+	public void searchForMonsterName(String monsterName)
 	{
 		if (monsterName.isEmpty())
 		{
+			monsterSearchString = "";
 			return;
 		}
-
+		monsterSearchString = monsterName;
 		monsterSearchField.setEditable(false);
 		monsterSearchField.setIcon(IconTextField.Icon.LOADING_DARKER);
 		configLoot = getLootConfig(monsterName);

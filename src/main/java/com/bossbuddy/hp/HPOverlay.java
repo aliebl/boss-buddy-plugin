@@ -224,7 +224,7 @@ public class HPOverlay extends Overlay
 			{
 				int curHp = client.getVarbitValue(HPBAR_HUD_HP);
 				Boss boss = Boss.find(npc.getId());
-				if(!boss.isIgnoreMaxHp())
+				if(!boss.isIgnoreMaxHp() || curHp == 0)
 				{
 					curHp = (int) bossBuddyNPC.getCurrentHp();
 				}
