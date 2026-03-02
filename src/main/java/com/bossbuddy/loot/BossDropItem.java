@@ -11,7 +11,7 @@ import net.runelite.client.util.AsyncBufferedImage;
 @EqualsAndHashCode
 public class BossDropItem
 {
-	private final int id;
+	public final int id;
 	private final String name;
 	private final int quantity;
 	private final int killCount;

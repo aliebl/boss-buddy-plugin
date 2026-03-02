@@ -106,6 +106,23 @@ public interface BossBuddyConfig extends Config
 		return false;
 	}
 
+	@ConfigItem(
+		position = 4,
+		keyName = "hideCollectionLogKC",
+		name = "Hide KC in Collection Log",
+		description = "Hide KC item was obtained in collection log",
+		section = loot_settings
+	)
+	default boolean hideCollectionLogKC(){ return false;}
+
+	@ConfigItem(
+		position = 5,
+		keyName = "mostRecentKC",
+		name = "Show Last KC",
+		description = "Display last KC an item was obtained, uncheck for first",
+		section = loot_settings
+	)
+	default boolean mostRecentKC(){ return true;}
 
 	@ConfigItem(
 		keyName = "bossRespawnTimer",
@@ -349,6 +366,27 @@ public interface BossBuddyConfig extends Config
 	default boolean npcHideFull()
 	{
 		return false;
+	}
+
+	@ConfigItem(
+		position = 11,
+		keyName = "staticOverlayColor",
+		name = "Static Text Color",
+		description = "Use below color in HP Overlay",
+		section = hp_settings
+	)
+	default boolean staticOverlayColor()	{ return false;	}
+
+	@ConfigItem(
+		position = 12,
+		keyName = "hpOverlayColor",
+		name = "Text Color",
+		description = "Static color to use instead of Green/Red gradient",
+		section = hp_settings
+	)
+	default Color hpOverlayColor()
+	{
+		return Color.WHITE;
 	}
 
 	default Color commonColor()

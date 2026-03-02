@@ -1,6 +1,7 @@
 package com.bossbuddy;
 
 import com.bossbuddy.hp.HPOverlay;
+import com.bossbuddy.loot.CollectionLogOverlay;
 import com.bossbuddy.respawn.RespawnOverlay;
 import com.bossbuddy.gearhelper.EquipmentOverlay;
 import com.bossbuddy.loot.BossDropFraction;
@@ -18,6 +19,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import com.google.inject.Provides;
+import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.swing.*;
 import lombok.AccessLevel;
@@ -27,10 +29,12 @@ import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.*;
+import net.runelite.api.widgets.*;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetUtil;
 import net.runelite.client.Notifier;
+import net.runelite.api.events.WidgetLoaded;
 import net.runelite.client.chat.*;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.EventBus;
@@ -61,6 +65,7 @@ import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
 import static net.runelite.api.gameval.NpcID.*;
 import static net.runelite.api.gameval.VarbitID.*;
+import static net.runelite.client.util.Text.removeTags;
 import okhttp3.OkHttpClient;
 
 @SuppressWarnings("SameReturnValue")
@@ -110,6 +115,9 @@ public class BossBuddyPlugin extends Plugin
 	private EquipmentOverlay equipmentOverlay;
 
 	@Inject
+	private CollectionLogOverlay collectionLogOverlay;
+
+	@Inject
 	private ChatMessageManager chatMessageManager;
 
 	@Inject
@@ -156,6 +164,7 @@ public class BossBuddyPlugin extends Plugin
 	private final List<NPC> despawnedNpcsThisTick = new ArrayList<>();
 	private WorldPoint lastPlayerLocation;
 	private final HashMap<Integer, WorldPoint> npcLocations = new HashMap<>();
+	private String collectionLogPage;
 
 	@Inject
 	private ClientToolbar clientToolbar;
@@ -197,6 +206,7 @@ public class BossBuddyPlugin extends Plugin
 		overlayManager.add(hpOverlay);
 		overlayManager.add(respawnOverlay);
 		overlayManager.add(equipmentOverlay);
+		overlayManager.add(collectionLogOverlay);
 
 		clientThread.invokeLater(this::rebuildAllNpcs);
 	}
@@ -213,6 +223,7 @@ public class BossBuddyPlugin extends Plugin
 		overlayManager.remove(hpOverlay);
 		overlayManager.remove(respawnOverlay);
 		overlayManager.remove(equipmentOverlay);
+		overlayManager.remove(collectionLogOverlay);
 		npcLocations.clear();
 		bossBuddyNPCs.clear();
 		clientToolbar.removeNavigation(navButton);
@@ -323,12 +334,14 @@ public class BossBuddyPlugin extends Plugin
 			return null;
 		}
 
+		if(Objects.equals(name, "Grotesque Guardians"))
+			name = "Dusk";
+
 		String json = configManager.getConfiguration(BossBuddyConfig.GROUP, profile, "BOSS_BUDDY_NPC_" + name.toUpperCase());
 		if (json == null)
 		{
 			return null;
 		}
-
 		return gson.fromJson(json, ConfigLoot.class);
 	}
 
@@ -1206,6 +1219,89 @@ public class BossBuddyPlugin extends Plugin
 
 				bossBuddyNPCs.put(npc.getIndex(), bossBuddyNPC);
 				npcLocations.put(npc.getIndex(), npc.getWorldLocation());
+		}
+	}
+
+	@Subscribe
+	public void onScriptPostFired(ScriptPostFired scriptPostFired)
+	{
+		if (scriptPostFired.getScriptId() == ScriptID.COLLECTION_DRAW_LIST)
+		{
+			clientThread.invokeLater(this::getPage);
+		}
+	}
+
+	private void getPage()
+	{
+		Widget activeTab = getActiveTab();
+		if (activeTab == null)
+		{
+			return;
+		}
+
+		String activeTabName = removeTags(activeTab.getName());
+		Widget pageHead = client.getWidget(40697876);
+		if (pageHead == null)
+		{
+			return;
+		}
+
+		String pageTitle = pageHead.getDynamicChildren()[0].getText();
+		if (pageTitle == null){
+			return;
+		}
+		log.info(pageTitle);
+		collectionLogPage = pageTitle;
+
+	}
+
+	private Widget getActiveTab()
+	{
+		Widget tabsWidget = client.getWidget(40697859);
+		if (tabsWidget == null)
+		{
+			return null;
+		}
+
+		int tabIndex = client.getVarbitValue(6905);
+		return tabsWidget.getStaticChildren()[tabIndex];
+	}
+
+	public void findCollectionLogKC(int itemId, Consumer<BossDropItem> bossDropitem)
+	{
+		if (itemId == -1) {
+			bossDropitem.accept(null);
+		}
+
+		if (collectionLogPage == null || collectionLogPage.isEmpty()){
+			bossDropitem.accept(null);
+		}
+
+		try
+		{
+			String monsterName = collectionLogPage;
+			ConfigLoot configLoot = getLootConfig(monsterName);
+			BossDropItem[] bdi = buildBossDropItemsFromConfig(configLoot);
+			BossDropItem[] items = Arrays.stream(bdi).filter(k -> k.id == itemId).toArray(BossDropItem[]::new);
+			BossDropItem item = null;
+
+			if(items.length == 0)
+				bossDropitem.accept(null);
+
+			if (config.mostRecentKC())
+				item = items[0];
+			else
+			{
+				item = items[items.length - 1];
+			}
+
+			if (item == null){
+				bossDropitem.accept(null);
+			}
+			bossDropitem.accept(item);
+
+		} catch (Exception e) {
+			bossDropitem.accept(null);
 		}
 	}
 }

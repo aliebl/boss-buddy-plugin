@@ -9,6 +9,7 @@ import com.bossbuddy.util.Constants;
 import com.bossbuddy.util.Util;
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
@@ -215,6 +216,9 @@ public class BossBuddyPanel extends PluginPanel
 			log.debug("Trying to get loot with no profile!");
 			return null;
 		}
+
+		if(Objects.equals(name, "Grotesque Guardians"))
+			name = "Dusk";
 
 		String json = configManager.getConfiguration(BossBuddyConfig.GROUP, profile, "BOSS_BUDDY_NPC_" + name.toUpperCase());
 		if (json == null)

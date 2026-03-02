@@ -126,6 +126,10 @@ public class HPOverlay extends Overlay
 			timerColor = getGradientHpColor(curNumericHealth, 100);
 		}
 
+		if(bossBuddyConfig.staticOverlayColor()){
+			timerColor = bossBuddyConfig.hpOverlayColor();
+		}
+
 		String currentHPString = getCurrentHpString(bossBuddyNPC, true);
 		if (maxHealth != null)
 		{
