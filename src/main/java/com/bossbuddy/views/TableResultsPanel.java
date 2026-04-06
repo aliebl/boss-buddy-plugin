@@ -48,6 +48,7 @@ public class TableResultsPanel extends JPanel
 
 	void buildDropTableContent()
 	{
+		dropTableContent.removeAll();
 		if (bossDropItems.length > 1)
 		{
 			dropTableContent.add(Box.createRigidArea(new Dimension(0, 5)));

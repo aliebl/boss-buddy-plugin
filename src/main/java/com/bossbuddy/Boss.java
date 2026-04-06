@@ -37,6 +37,9 @@ public enum Boss
 	DAGANNOTH_REX(NpcID.DAGCAVE_MELEE_BOSS, 90, ChronoUnit.SECONDS, ItemID.REXPET,255),
 	DAGANNOTH_SUPREME(NpcID.DAGCAVE_RANGED_BOSS, 90, ChronoUnit.SECONDS, ItemID.SUPREMEPET,255),
 	DERANGED_ARCHAEOLOGIST(NpcID.FOSSIL_CRAZY_ARCHAEOLOGIST, 29400, ChronoUnit.MILLIS, ItemID.FOSSIL_LARGE_UNID,200),
+	DOOM(DOM_BOSS, 90, ChronoUnit.MILLIS,ItemID.DOMPET, true,true, true, -1),
+	DOOM_SHIELD(DOM_BOSS_SHIELDED, 90, ChronoUnit.MILLIS,ItemID.DOMPET, true,true, true, -1),
+	DOOM_BURROW(DOM_BOSS_BURROWED, 90, ChronoUnit.MILLIS,ItemID.DOMPET, true,true, true, -1),
 	DUKE_AWAKE(DUKE_SUCELLUS_AWAKE,15,RSTimeUnit.GAME_TICKS, ItemID.DUKESUCELLUSPET,440),
 	DUSK(NpcID.GARGBOSS_DUSK_DEATH, 5, ChronoUnit.MINUTES, ItemID.DAWNPET, false, true, true,-1),
 	GENERAL_GRAARDOR(NpcID.GODWARS_BANDOS_AVATAR, 90, ChronoUnit.SECONDS, ItemID.BANDOSPET,255),
@@ -141,19 +144,12 @@ public enum Boss
 	private static final ImmutableSet<Integer> GEN_BOSS_IDS = ImmutableSet.of(
 	);
 
-	// Doom of Mokhaiotl
-	public static final ImmutableSet<Integer> DOOM_BOSS_IDS = ImmutableSet.of(
-		DOM_BOSS,
-		DOM_BOSS_SHIELDED,
-		DOM_BOSS_BURROWED
-	);
 
 	private static final ImmutableSet<Integer> ALL_BOSS_IDS =
 		ImmutableSet.<Integer>builder()
 			.addAll(GEN_BOSS_IDS)
 			.addAll(COX_BOSS_IDS)
 			.addAll(DT2_BOSS_IDS)
-			.addAll(DOOM_BOSS_IDS)
 			.build();
 
 	public static boolean isNpcBossFromTOA(NPC npc)

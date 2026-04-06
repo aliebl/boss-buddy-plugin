@@ -53,6 +53,8 @@ public class TableBox extends JPanel
 	void removeRecord(int itemIndex)
 	{
 		tableResultsPanel.removeRecord(itemIndex);
+
+		listViewContainer.remove(itemIndex);
 	}
 
 	void buildHeader()
@@ -111,15 +113,7 @@ public class TableBox extends JPanel
 		deleteBtn.setPreferredSize(new Dimension(60, 20));
 		Util.showHandCursorOnHover(deleteBtn);
 		deleteBtn.addActionListener((evt) -> {
-			/*int i = 0;
-			for (BossDropItem item : items)
-			{
-				removeRecord(i);
-				i++;
-			}
-			*/
 			tableResultsPanel.clearRecords();
-
 		});
 		deleteBtn.setLayout(new BorderLayout());
 

@@ -20,6 +20,8 @@ import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import com.google.inject.Provides;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.inject.Inject;
 import javax.swing.*;
 import lombok.AccessLevel;
@@ -65,8 +67,10 @@ import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
 import static net.runelite.api.gameval.NpcID.*;
 import static net.runelite.api.gameval.VarbitID.*;
+import net.runelite.client.util.Text;
 import static net.runelite.client.util.Text.removeTags;
 import okhttp3.OkHttpClient;
+import org.apache.commons.text.WordUtils;
 
 @SuppressWarnings("SameReturnValue")
 @Slf4j
@@ -165,6 +169,14 @@ public class BossBuddyPlugin extends Plugin
 	private WorldPoint lastPlayerLocation;
 	private final HashMap<Integer, WorldPoint> npcLocations = new HashMap<>();
 	private String collectionLogPage;
+
+	private static final Pattern PICKPOCKET_REGEX = Pattern.compile("You pick (the )?(?<target>.+)'s? pocket.*");
+	private int ignorePickpocketLoot;
+	private String lastPickpocketTarget;
+	private static final Multimap<String, String> PICKPOCKET_DISAMBIGUATION_MAP = ImmutableMultimap.of(
+		"H.A.M. Member", "Man",
+		"H.A.M. Member", "Woman"
+	);
 
 	@Inject
 	private ClientToolbar clientToolbar;
@@ -362,6 +374,26 @@ public class BossBuddyPlugin extends Plugin
 		switchProfile(profileKey);
 	}
 
+	private static boolean isNPCOp(MenuAction menuAction)
+	{
+		final int id = menuAction.getId();
+		return id >= MenuAction.NPC_FIRST_OPTION.getId() && id <= MenuAction.NPC_FIFTH_OPTION.getId();
+	}
+
+	@Subscribe
+	public void onMenuOptionClicked(MenuOptionClicked event)
+	{
+		if (isNPCOp(event.getMenuAction()))
+		{
+			// There are some pickpocket targets who show up in the chat box with a different name (e.g. H.A.M. members -> man/woman)
+			// We use the value selected from the right-click menu as a fallback for the event lookup in those cases.
+			if (event.getMenuOption().equals("Pickpocket"))
+			{
+				lastPickpocketTarget = Text.removeTags(event.getMenuTarget());
+			}
+		}
+	}
+
 	@Subscribe
 	public void onMenuOpened(final MenuOpened event)
 	{
@@ -545,7 +577,7 @@ public class BossBuddyPlugin extends Plugin
 
 			if (!loadedWikiItems.isEmpty() && loadedWikiItems.containsKey(curNPC.getId()))
 			{
-				log.debug("Drop table already loaded");
+				//log.debug("Drop table already loaded");
 			}
 			else
 			{
@@ -655,9 +687,8 @@ public class BossBuddyPlugin extends Plugin
 			//	return;
 			//}
 		}
-		boolean isDoomBoss = Boss.DOOM_BOSS_IDS.contains(npc.getId());
 
-		if (!npc.isDead() && ((npc.getHealthRatio() / npc.getHealthScale() != 1) || isDoomBoss))
+		if (!npc.isDead() && ((npc.getHealthRatio() / npc.getHealthScale() != 1)))
 		{
 			bossBuddyNPC.setHealthRatio(monsterHpRatio);
 			bossBuddyNPC.setCurrentHp(monsterHp);
@@ -695,7 +726,7 @@ public class BossBuddyPlugin extends Plugin
 
 		if (!loadedWikiItems.isEmpty() && loadedWikiItems.containsKey(npcId))
 		{
-			log.debug("Drop table already loaded");
+			//log.debug("Drop table already loaded");
 		}
 		else
 		{
@@ -783,6 +814,13 @@ public class BossBuddyPlugin extends Plugin
 		final Collection<ItemStack> items = event.getItems();
 		String name = npc.getName();
 
+		if (ignorePickpocketLoot == client.getTickCount())
+		{
+			// server sends npc loot for pickpockets, ignore it
+			return;
+		}
+
+
 		if (NPC_DISAMBIGUATION_MAP.containsKey(name))
 		{
 			Collection<String> npcMap = NPC_DISAMBIGUATION_MAP.get(name);
@@ -845,11 +883,14 @@ public class BossBuddyPlugin extends Plugin
 
 	void addLoot(NPCComposition npc, Collection<ItemStack> items, int killCount)
 	{
-		int intdate = Integer.parseInt(formatter.format(Instant.now()));
-		final BossDropItem[] entries = buildEntries(stack(items), killCount, intdate);
+		int intDate = Integer.parseInt(formatter.format(Instant.now()));
+		final BossDropItem[] entries = buildEntries(stack(items), killCount, intDate);
 		for (BossDropItem bdi : entries)
 		{
-			if (Objects.equals(bdi.getName(), "Dwarf remains") || Arrays.stream(config.ignoreItems().split(",")).anyMatch(k -> k.equals(bdi.getName())))
+			if (Objects.equals(bdi.getName(), "Dwarf remains") ||
+				Arrays.stream(config.ignoreItems().split(",")).anyMatch(k -> k.equalsIgnoreCase(bdi.getName())) ||
+				bdi.getName().startsWith("Ensouled")
+			)
 			{
 				continue;
 			}
@@ -869,6 +910,19 @@ public class BossBuddyPlugin extends Plugin
 				lootConfig.lastDrop = bdi.getName();
 				lootConfig.add(bdi.getId(), bdi.getKillCount(), bdi.getGePrice() * bdi.getQuantity(), bdi.getDate());
 				lootConfig.last = Instant.now();
+			}
+
+			if(lootConfig.numDrops() >= 1000){
+				String chatMessage = new ChatMessageBuilder()
+					.append(ChatColorType.HIGHLIGHT)
+					.append("Your drop count for " +npc.getName()+ " is over 1000 in length. Consider clearing if having performance issues.")
+					.build();
+
+				chatMessageManager.queue(
+					QueuedMessage.builder()
+						.type(ChatMessageType.CONSOLE)
+						.runeLiteFormattedMessage(chatMessage)
+						.build());
 			}
 
 			setLootConfig(lootConfig.name, lootConfig);
@@ -1158,6 +1212,7 @@ public class BossBuddyPlugin extends Plugin
 		}
 		lootConfig.setDrops(newArray);
 		setLootConfig(lootConfig.getName(), lootConfig);
+		//panel.refreshMainPanel();
 		buildPanelItems(lootConfig);
 
 	}
@@ -1200,6 +1255,28 @@ public class BossBuddyPlugin extends Plugin
 		if (Objects.equals(configChanged.getGroup(), "MonsterHP") && (Objects.equals(configChanged.getKey(), "npcShowAll") || Objects.equals(configChanged.getKey(), "npcShowAllBlacklist") || Objects.equals(configChanged.getKey(), "npcToShowHp") || Objects.equals(configChanged.getKey(), "npcIdToShowHp")))
 		{
 			clientThread.invokeLater(this::rebuildAllNpcs);
+		}
+	}
+
+	@Subscribe
+	public void onChatMessage(ChatMessage event){
+
+		final String message = event.getMessage();
+
+		final Matcher pickpocketMatcher = PICKPOCKET_REGEX.matcher(message);
+		if (pickpocketMatcher.matches())
+		{
+			// Get the target's name as listed in the chat box
+			String pickpocketTarget = WordUtils.capitalize(pickpocketMatcher.group("target"));
+
+			// Occasional edge case where the pickpocket message doesn't list the correct name of the NPC (e.g. H.A.M. Members)
+			if (PICKPOCKET_DISAMBIGUATION_MAP.get(lastPickpocketTarget).contains(pickpocketTarget))
+			{
+				pickpocketTarget = lastPickpocketTarget;
+			}
+
+			ignorePickpocketLoot = client.getTickCount();
+			return;
 		}
 	}
 

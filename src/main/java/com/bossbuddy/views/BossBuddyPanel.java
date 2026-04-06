@@ -41,6 +41,7 @@ public class BossBuddyPanel extends PluginPanel
 	public String monsterSearchString = "";
 	public String profileKey = null;
 	private ConfigManager configManager = null;
+	private TableResultsPanel tablePanel = null;
 	private BossBuddyPlugin plugin = null;
 	@Inject
 	private ClientThread clientThread;
@@ -111,7 +112,16 @@ public class BossBuddyPanel extends PluginPanel
 	}
 
 	void clearRecords(){
-		clientThread.invokeLater(() -> plugin.clearRecords(panelMonsterName));
+		String clearString = "";
+		if (monsterSearchString.isEmpty())
+			clearString = panelMonsterName;
+		else
+		{
+			clearString = monsterSearchString;
+		}
+
+		String finalClearString = clearString;
+		clientThread.invokeLater(() -> plugin.clearRecords(finalClearString));
 	}
 
 	public void setLootConfig(String name, ConfigLoot loot)
@@ -133,7 +143,7 @@ public class BossBuddyPanel extends PluginPanel
 		remove(errorPanel);
 		SwingUtil.fastRemoveAll(mainPanel);
 
-		TableResultsPanel tablePanel = new TableResultsPanel(this, config, bossDropRecord);
+		tablePanel = new TableResultsPanel(this, config, bossDropRecord);
 
 		mainPanel.add(tablePanel);
 		mainPanel.revalidate();
@@ -198,8 +208,18 @@ public class BossBuddyPanel extends PluginPanel
 		clientThread.invokeLater(() -> plugin.buildPanelItems(configLoot));
 	}
 
+	public void refreshMainPanel(){
+
+		tablePanel = new TableResultsPanel(this, config, bossDropRecord);
+
+		mainPanel.add(tablePanel);
+		mainPanel.revalidate();
+		mainPanel.repaint();
+	}
+
 	public void refreshMainPanelWithRecords(String monsterName, BossDropItem[] bdi, int killCount)
 	{
+		panelMonsterName = monsterName;
 		configLoot = getLootConfig(monsterName);
 		bossDropRecord = new BossDropRecord(monsterName, bdi, killCount);
 
