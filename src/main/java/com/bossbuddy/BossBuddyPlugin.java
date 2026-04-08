@@ -915,7 +915,7 @@ public class BossBuddyPlugin extends Plugin
 			if(lootConfig.numDrops() >= 1000){
 				String chatMessage = new ChatMessageBuilder()
 					.append(ChatColorType.HIGHLIGHT)
-					.append("Your drop count for " +npc.getName()+ " is over 1000 in length. Consider clearing if having performance issues.")
+					.append("Boss Buddy: Your drop count for " +npc.getName()+ " is over 1000 in length. Consider clearing if having performance issues.")
 					.build();
 
 				chatMessageManager.queue(
