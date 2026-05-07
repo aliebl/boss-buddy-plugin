@@ -63,7 +63,11 @@ public class EquipmentOverlay extends OverlayPanel
 
 		Widget bankWindow = client.getWidget(InterfaceID.Bankmain.WINDOW);
 
+<<<<<<< patch-1
 		if (bankWindow == null || bankWindow.isHidden())
+=======
+		if (bankContainer == null || bankContainer.isSelfHidden() || bankContainer.isHidden())
+>>>>>>> master
 		{
 			return null;
 		}
