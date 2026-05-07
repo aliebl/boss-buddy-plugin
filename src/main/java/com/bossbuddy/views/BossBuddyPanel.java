@@ -103,8 +103,8 @@ public class BossBuddyPanel extends PluginPanel
 	void removeRecord(int itemIndex)
 	{
 
-		log.info(String.valueOf(itemIndex * 4));
-		log.info(String.valueOf(configLoot.getDrops()[itemIndex * 4]));
+		log.debug(String.valueOf(itemIndex * 4));
+		log.debug(String.valueOf(configLoot.getDrops()[itemIndex * 4]));
 		clientThread.invokeLater(() -> plugin.removeLoot(panelMonsterName, itemIndex * 4));
 
 		//remove item from drops and reset loot config

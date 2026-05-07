@@ -491,7 +491,6 @@ public class BossBuddyPlugin extends Plugin
 	private void splitCoins(int quantity, int splitAmount)
 	{
 		DecimalFormat formatter = new DecimalFormat("#,###");
-		log.info(String.valueOf(quantity / splitAmount));
 
 		String chatMessage = new ChatMessageBuilder()
 			.append(ChatColorType.HIGHLIGHT)
@@ -752,7 +751,7 @@ public class BossBuddyPlugin extends Plugin
 
 			if (commonDrops.containsKey(dropItemName) && commonDrops.get(dropItemName) == dropItemQuant)
 			{
-				log.info("Most likely rare drop that is under report rate");
+				log.debug("Most likely rare drop that is under report rate");
 				continue;
 			}
 
@@ -1327,7 +1326,7 @@ public class BossBuddyPlugin extends Plugin
 		if (pageTitle == null){
 			return;
 		}
-		log.info(pageTitle);
+
 		collectionLogPage = pageTitle;
 
 	}

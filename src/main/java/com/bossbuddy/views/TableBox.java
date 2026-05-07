@@ -160,7 +160,7 @@ public class TableBox extends JPanel
 				}
 				catch (Exception ex)
 				{
-					log.info(ex.getMessage());
+					log.debug(ex.getMessage());
 				}
 			}
 			i++;

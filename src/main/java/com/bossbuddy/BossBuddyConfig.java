@@ -389,15 +389,4 @@ public interface BossBuddyConfig extends Config
 		return Color.WHITE;
 	}
 
-	default Color commonColor()
-	{
-		return DEFAULT_COMMON_COLOR;
-	}
-
-	default Color priceColor()
-	{
-		return DEFAULT_PRICE_COLOR;
-	}
-
-
 }

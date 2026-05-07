@@ -81,10 +81,10 @@ public class BossDropItemPanel extends JPanel
 		container.add(paddingContainer);
 
 		rarityLabel.setFont(FontManager.getRunescapeSmallFont());
-		rarityLabel.setForeground(config.commonColor());
+		rarityLabel.setForeground(Color.WHITE);
 
 		priceLabel.setFont(FontManager.getRunescapeSmallFont());
-		priceLabel.setForeground(config.priceColor());
+		priceLabel.setForeground(ColorScheme.GRAND_EXCHANGE_ALCH);
 
 		Util.showHandCursorOnHover(container);
 		container.addMouseListener(new MouseAdapter()
